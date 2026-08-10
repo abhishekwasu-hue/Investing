@@ -1,0 +1,23 @@
+Ticker,Company_Name,Micro_Sector
+RENUKA.NS,Renuka Sugars,Sugar_Sector
+BALRAMCHIN.NS,Balrampur Chini,Sugar_Sector
+BAJAJHIND.NS,Bajaj Hindusthan,Sugar_Sector
+DHAMPURSUG.NS,Dhampur Sugar,Sugar_Sector
+TRIVENI.NS,Triveni Engineering,Sugar_Sector
+RADICO.NS,Radico Khaitan,Alcoholic_Beverages
+MCDOWELL-N.NS,United Spirits,Alcoholic_Beverages
+SULA.NS,Sula Vineyards,Alcoholic_Beverages
+TI.NS,Tilaknagar Industries,Alcoholic_Beverages
+HAL.NS,Hindustan Aeronautics,Defense_Sector
+MAZDOCK.NS,Mazagon Dock,Defense_Sector
+BEL.NS,Bharat Electronics,Defense_Sector
+COCHINSHIP.NS,Cochin Shipyard,Defense_Sector
+BDL.NS,Bharat Dynamics,Defense_Sector
+RVNL.NS,Rail Vikas Nigam,Railway_Infra
+IRCON.NS,IRCON International,Railway_Infra
+IRFC.NS,IRFC,Railway_Infra
+RAILTEL.NS,RailTel Corporation,Railway_Infra
+TITAGARH.NS,Titagarh Rail Systems,Railway_Infra
+RELIANCE.NS,Reliance Industries,Energy_Macro
+TCS.NS,TCS,IT_Giants
+INFY.NS,Infosys,IT_Giants

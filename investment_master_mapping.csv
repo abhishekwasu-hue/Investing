@@ -4,20 +4,99 @@ BALRAMCHIN.NS,Balrampur Chini,Sugar_Sector
 BAJAJHIND.NS,Bajaj Hindusthan,Sugar_Sector
 DHAMPURSUG.NS,Dhampur Sugar,Sugar_Sector
 TRIVENI.NS,Triveni Engineering,Sugar_Sector
+DALMIASUG.NS,Dalmia Bharat Sugar,Sugar_Sector
+UTTAMSUGAR.NS,Uttam Sugar Mills,Sugar_Sector
+DWARKESH.NS,Dwarikesh Sugar,Sugar_Sector
+AVADHSUGAR.NS,Avadh Sugar,Sugar_Sector
+MAGADHSUG.NS,Magadh Sugar,Sugar_Sector
 RADICO.NS,Radico Khaitan,Alcoholic_Beverages
 MCDOWELL-N.NS,United Spirits,Alcoholic_Beverages
 SULA.NS,Sula Vineyards,Alcoholic_Beverages
 TI.NS,Tilaknagar Industries,Alcoholic_Beverages
+GLOBUSSPR.NS,Globus Spirits,Alcoholic_Beverages
+GOCL.NS,GOCL Corporation,Alcoholic_Beverages
+SOMDIST.NS,Som Distilleries,Alcoholic_Beverages
 HAL.NS,Hindustan Aeronautics,Defense_Sector
 MAZDOCK.NS,Mazagon Dock,Defense_Sector
 BEL.NS,Bharat Electronics,Defense_Sector
 COCHINSHIP.NS,Cochin Shipyard,Defense_Sector
 BDL.NS,Bharat Dynamics,Defense_Sector
+GRSE.NS,Garden Reach Shipbuilders,Defense_Sector
+DATAPATTNS.NS,Data Patterns,Defense_Sector
+ASTRAZEN.NS,Astra Microwave,Defense_Sector
+MTARTECH.NS,MTAR Technologies,Defense_Sector
+PARAS.NS,Paras Defence,Defense_Sector
 RVNL.NS,Rail Vikas Nigam,Railway_Infra
 IRCON.NS,IRCON International,Railway_Infra
 IRFC.NS,IRFC,Railway_Infra
 RAILTEL.NS,RailTel Corporation,Railway_Infra
 TITAGARH.NS,Titagarh Rail Systems,Railway_Infra
+TEXRAIL.NS,Texmaco Rail,Railway_Infra
+BEML.NS,BEML Limited,Railway_Infra
+CONCOR.NS,CONCOR India,Railway_Infra
 RELIANCE.NS,Reliance Industries,Energy_Macro
-TCS.NS,TCS,IT_Giants
-INFY.NS,Infosys,IT_Giants
+ONGC.NS,ONGC India,Energy_Macro
+OIL.NS,Oil India,Energy_Macro
+BPCL.NS,BPCL Limited,Energy_Macro
+HPCL.NS,HPCL Limited,Energy_Macro
+IOC.NS,Indian Oil Corp,Energy_Macro
+GAIL.NS,GAIL India,Energy_Macro
+TCS.NS,TCS Limited,IT_Giants
+INFY.NS,Infosys Limited,IT_Giants
+WIPRO.NS,Wipro Limited,IT_Giants
+HCLTECH.NS,HCL Technologies,IT_Giants
+TECHM.NS,Tech Mahindra,IT_Giants
+LTIM.NS,LTIMindtree,IT_Giants
+PERSISTENT.NS,Persistent Systems,IT_Giants
+COFORGE.NS,CoForge Limited,IT_Giants
+KPITTECH.NS,KPIT Technologies,IT_Giants
+HDFCBANK.NS,HDFC Bank,Banking_Giants
+ICICIBANK.NS,ICICI Bank,Banking_Giants
+SBIN.NS,State Bank of India,Banking_Giants
+AXISBANK.NS,Axis Bank,Banking_Giants
+KOTAKBANK.NS,Kotak Mahindra Bank,Banking_Giants
+INDUSINDBK.NS,IndusInd Bank,Banking_Giants
+BANKBARODA.NS,Bank of Baroda,Banking_Giants
+PNB.NS,Punjab National Bank,Banking_Giants
+CANBK.NS,Canara Bank,Banking_Giants
+IDFCFIRSTB.NS,IDFC First Bank,Banking_Giants
+FEDERALBNK.NS,Federal Bank,Banking_Giants
+TATASTEEL.NS,Tata Steel,Metals_Mining
+JSWSTEEL.NS,JSW Steel,Metals_Mining
+HINDALCO.NS,Hindalco Industries,Metals_Mining
+VEDL.NS,Vedanta Limited,Metals_Mining
+NMDC.NS,NMDC Limited,Metals_Mining
+NATIONALUM.NS,NALCO Limited,Metals_Mining
+SAIL.NS,SAIL Limited,Metals_Mining
+JINDALSTEL.NS,Jindal Steel & Power,Metals_Mining
+HINDZINC.NS,Hindustan Zinc,Metals_Mining
+TATAMOTORS.NS,Tata Motors,Automobile_EV
+MARUTI.NS,Maruti Suzuki,Automobile_EV
+M&M.NS,Mahindra & Mahindra,Automobile_EV
+BAJAJ-AUTO.NS,Bajaj Auto,Automobile_EV
+EICHERMOT.NS,Eicher Motors,Automobile_EV
+HEROMOTOCO.NS,Hero MotoCorp,Automobile_EV
+TVSMOTOR.NS,TVS Motor,Automobile_EV
+ASHOKLEY.NS,Ashok Leyland,Automobile_EV
+SONACOMS.NS,Sona BLW,Automobile_EV
+BALKRISIND.NS,Balkrishna Industries,Automobile_EV
+LT.NS,Larsen & Toubro,Infrastructure_CapG
+SIEMENS.NS,Siemens India,Infrastructure_CapG
+ABB.NS,ABB India,Infrastructure_CapG
+CUMMINSIND.NS,Cummins India,Infrastructure_CapG
+BEL.NS,Bharat Electronics,Infrastructure_CapG
+HAVELLS.NS,Havells India,Infrastructure_CapG
+POLYCAB.NS,Polycab India,Infrastructure_CapG
+KEI.NS,Polycab KEI Wires,Infrastructure_CapG
+KEC.NS,KEC International,Infrastructure_CapG
+VOLTAS.NS,Voltas Limited,Infrastructure_CapG
+NTPC.NS,NTPC Limited,Green_Energy_Power
+POWERGRID.NS,Power Grid Corp,Green_Energy_Power
+TATAPOWER.NS,Tata Power,Green_Energy_Power
+ADANIGREEN.NS,Adani Green Energy,Green_Energy_Power
+ADANITRANS.NS,Adani Energy Solutions,Green_Energy_Power
+JSWENERGY.NS,JSW Energy,Green_Energy_Power
+NHPC.NS,NHPC Limited,Green_Energy_Power
+SJVN.NS,NHPC SJVN Power,Green_Energy_Power
+SUZLON.NS,Suzlon Energy,Green_Energy_Power
+IREDA.NS,IREDA Limited,Green_Energy_Power

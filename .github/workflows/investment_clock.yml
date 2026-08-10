@@ -1,0 +1,44 @@
+name: Weekly Long-Term Investment Screener
+on:
+  schedule:
+    # 🟢 दर शनिवारी दुपारी ठीक ०४:०० वाजता IST (१०:३० AM UTC वेळ) ऑटोमॅटिक चालू होईल
+    - cron: '30 10 * * 6'
+  workflow_dispatch:      # मॅन्युअल टेस्ट करण्यासाठी "Run workflow" चे बटण
+
+jobs:
+  analyze_and_report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Load Repository Code
+        uses: actions/checkout@v4
+        
+      - name: Set Up Python Environment
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          
+      - name: Install Quant Dependencies
+        run: pip install requests pandas numpy yfinance
+        
+      - name: Run 5-Year Nifty 1000 Database Sync
+        env:
+          SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
+          RECEIVER_EMAIL: ${{ secrets.RECEIVER_EMAIL }}
+          EMAIL_APP_PASSWORD: ${{ secrets.EMAIL_APP_PASSWORD }}
+        run: python investment_database.py
+
+      - name: Run Master Performance Report Dispatcher
+        env:
+          SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
+          RECEIVER_EMAIL: ${{ secrets.RECEIVER_EMAIL }}
+          EMAIL_APP_PASSWORD: ${{ secrets.EMAIL_APP_PASSWORD }}
+        run: python investment_reporter.py
+
+      - name: Securely Commit and Push Data Warehouse Changes
+        run: |
+          git config --global user.name "Nifty1000ResearchBot"
+          git config --global user.email "research@algo.terminal"
+          git add investment_data_warehouse/*
+          git add investment_master_mapping.csv
+          git diff-index --quiet HEAD || git commit -m "📊 Automated Weekly Nifty 1000 Warehouse Update [Skip CI]"
+          git push

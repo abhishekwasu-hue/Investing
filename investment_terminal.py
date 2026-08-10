@@ -149,4 +149,6 @@ else:
 
 # ब्राउझरवर कमेंट्स बॉक्स सजवणे
 str_app.info(f"📊 **डेटा विश्लेषण स्टेटस:** {regime_status}")
-str_app.markdown(f"<div style='background-color:#f7fafc; padding:20px; border-radius:6px; border-left:5px solid {narrative_color}; font-size:14px; line-height:1.6; color:#2d3748;'><b>संशोधन मीमांसा (Research Logic):</b><br>{research_text}</div>", unsafe_allow_color=True)
+# 🟢 हा दुरुस्त केलेला भाग लाईन १५२ च्या जागी कॉपी-पेस्ट करा:
+str_app.info(f"📊 **डेटा विश्लेषण स्टेटस:** {regime_status}")
+str_app.markdown(f"<div style='background-color:#f7fafc; padding:20px; border-radius:6px; border-left:5px solid {narrative_color}; font-size:14px; line-height:1.6; color:#2d3748;'><b>संशोधन मीमांसा (Research Logic):</b><br>{research_text}</div>", unsafe_allow_html=True)

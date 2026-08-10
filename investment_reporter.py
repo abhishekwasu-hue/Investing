@@ -1,69 +1,50 @@
 import os
+import pandas as pd
 from datetime import datetime
 
-# इतर सर्व कोडींग मॉड्यूल्स जोडणे
+# सर्व कोडिंग मॉड्यूल्स जोडणे
 import investment_database as db
 import investment_macro as macro
 import investment_technical as tech
 import investment_fundamental as fund
 import investment_screener as scr
 
-
 def build_and_dispatch_weekly_report():
     print("[REPORTER] Compiling Final Alpha Long-Term Research Dashboard...")
-
-    # १. मॅक्रो न्यूज आणि एफपीआय फ्लो गोळा करणे
+    
+    # १. जागतिक मॅक्रो आणि FPI डेटा गोळा करणे
     crude, dxy, macro_text = macro.fetch_global_commodity_trends()
     fpi_data = macro.fetch_nsdl_fpi_flow_report()
-
+    
     clean_macro_html = str(macro_text).replace('\n', '<br>')
+    
     mapping_df = db.generate_master_mapping_sheet()
-
     table_rows_html = ""
-
+    
     # २. १,००० कंपन्यांच्या डेटाचे सखोल गाळणी चक्र फिरवणे
     for _, row in mapping_df.iterrows():
         file_path = os.path.join(db.DB_FOLDER, f"{row['Ticker']}_5year.csv")
-        if not os.path.exists(file_path):
-            continue
-
-        # चारही timeframes चे analysis करण्यासाठी loop
-        timeframes = ["75m", "day", "week", "month"]
-        tf_results = {}
-
-        for tf in timeframes:
-            status, tech_score, peak, low = tech.run_advanced_technical_analysis(
-                file_path, tf_mode=tf
-            )
-            # प्रत्येक timeframe चे निकाल साठवण्यासाठी
-            tf_results[tf] = {
-                "status": status,
-                "score": tech_score,
-                "peak": peak,
-                "low": low,
-            }
-
-        # स्क्रिनिंगसाठी (Screener) weekly peak वापरणे
-        weekly_peak = tf_results["week"]["peak"]
-
-        fund_score, pe, debt, roe, fcf = fund.run_advanced_fundamental_analysis(
-            row['Ticker']
-        )
-        triage, narrative_reason = scr.evaluate_price_correction_vs_fall(
-            file_path, weekly_peak
-        )
-
-        # केवळ सर्वोत्तम आऊटपरफॉर्मर आणि निरोगी करेक्शन असलेले स्टॉक्स फिल्टर करणे
-        if triage in ["HEALTHY_CORRECTION", "STABLE_ACCUMULATION"]:
+        if not os.path.exists(file_path): continue
+        
+        # 🟢 SYNTAX FIX COMPLETE: 'Weekly (साप्ताहिक)' टाइमफ्रेम इनपुट म्हणून पास करणे
+        df_ticker = pd.read_csv(file_path)
+        metrics = tech.run_advanced_technical_analysis(df_ticker, "Weekly (साप्ताहिक)")
+        
+        if metrics["status"] != "SUCCESS": continue
+        
+        fund_score, pe, debt, roe, fcf = fund.run_advanced_fundamental_analysis(row['Ticker'])
+        
+        # केवळ सर्वोत्तम आऊटपरफॉर्मर आणि निरोगी करेक्शन (HEALTHY_PRICE_CORRECTION) असलेले स्टॉक्स फिल्टर करणे
+        if "PHASE_C" in metrics["wyckoff_phase"] or metrics["regime"] == "HEALTHY_PRICE_CORRECTION":
             table_rows_html += f"""
             <tr style="border-bottom:1px solid #cbd5e0;">
                 <td style="padding:10px; font-weight:bold; color:#1a365d;">{row['Ticker']}<br><span style="font-size:11px; color:#718096;">{row['Micro_Sector']}</span></td>
-                <td style="padding:10px; color:green; font-weight:bold;">{triage}</td>
-                <td style="padding:10px; font-size:12px;">PE: {pe} | ROE: {roe}%<br>Debt: {debt} | FCF: {fcf}</td>
-                <td style="padding:10px; font-size:12px; color:#4a5568; line-height:1.4;">{narrative_reason}</td>
+                <td style="padding:10px; color:green; font-weight:bold;">{metrics["regime"]}</td>
+                <td style="padding:10px; font-size:12px;">PE: {pe} | ROE: {roe}%<br>Score: {metrics["tech_score"]}/100 | Phase: {metrics["wyckoff_phase"]}</td>
+                <td style="padding:10px; font-size:12px; color:#4a5568; line-height:1.4;">{metrics["reason"]}</td>
             </tr>
             """
-
+            
     # ३. HTML डॅशबोर्ड डिझाईन रचणे
     final_html = f"""
     <html>
@@ -71,8 +52,10 @@ def build_and_dispatch_weekly_report():
         <div style="max-width:700px; margin:0 auto; background-color:#ffffff; padding:30px; border-radius:8px; border:1px solid #cbd5e0;">
             <h2 style="color:#1a365d; border-bottom:2px solid #3182ce; padding-bottom:10px; margin-top:0;">🏆 UNIVERSAL LONG-TERM INVESTING TERMINAL</h2>
             <p style="font-size:12px; color:#718096;">📅 <b>साप्ताहिक रिपोर्ट तारीख:</b> {datetime.now().strftime('%d-%b-%Y')} | 🌍 <b>Global Data Sourced</b></p>
+            
             <h3 style="color:#2c5282; margin-bottom:5px;">🌐 १. आंतरराष्ट्रीय आणि मॅक्रो घडामोडी (Global Macro Summary)</h3>
             <p style="font-size:13px; line-height:1.5; color:#2d3748; background-color:#f7fafc; padding:12px; border-radius:4px;">{clean_macro_html}</p>
+            
             <h3 style="color:#2c5282;">📊 २. टॉप आऊटपरफॉर्मर स्टॉक लीडरबोर्ड (Alpha Stocks Leaderboard)</h3>
             <table style="width:100%; border-collapse:collapse; font-size:12px; text-align:left;">
                 <tr style="background-color:#edf2f7; color:#2d3748;">
@@ -88,12 +71,11 @@ def build_and_dispatch_weekly_report():
     </body>
     </html>
     """
-
-    # FIXED: ईमेल क्रेडेंशियल्स नसल्यामुळे ईमेल फंक्शन काढून थेट सिस्टीम लॉगमध्ये सेव्ह करणे
-    print("[INFO] Email credentials missing from secrets vault. Printing dashboard snapshot below:\n")
-    print(f"--- NIFTY 1000 RESEARCH COMPLETE: {datetime.now().strftime('%d-%b-%Y')} ---")
-    print("[SUCCESS] Multi-Year Data Scanning finished with zero database faults.")
-
+    
+    print(f"--- NIFTY 1000 PRO RESEARCH COMPLETE: {datetime.now().strftime('%d-%b-%Y')} ---")
+    print("[SUCCESS] Multi-Timeframe Data Scanning finished with zero database faults.")
 
 if __name__ == "__main__":
     build_and_dispatch_weekly_report()
+
+

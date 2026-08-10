@@ -1,56 +1,41 @@
 import os
 import pandas as pd
-import numpy as np
-import investment_technical as tech
+from datetime import datetime
 
-def load_universe_data():
-    """
-    Helper function to load data safely for the reporter.
-    Adjust the path or fetch logic as per your repository setup.
-    """
-    # If you have local CSV/Parquet database synced in workflow:
-    data_path = "nifty_1000_data.csv" # किंवा तुमच्या डेटा फाइलचे नाव
-    
-    if os.path.exists(data_path):
-        df = pd.read_csv(data_path)
-        return df
-    else:
-        # Dummy fallback structure if file is dynamically generated
-        print(f"[REPORTER WARNING] Data file {data_path} not found. Creating placeholder structured DF.")
-        dates = pd.date_range(end=pd.Timestamp.today(), periods=200, freq='D')
-        df = pd.DataFrame({
-            'Date': dates,
-            'Open': np.random.uniform(100, 200, size=200),
-            'High': np.random.uniform(200, 250, size=200),
-            'Low': np.random.uniform(80, 100, size=200),
-            'Close': np.random.uniform(100, 200, size=200),
-            'Volume': np.random.randint(1000, 100000, size=200),
-            'Delivery_Pct': np.random.uniform(40, 80, size=200),
-            'No_of_Trades': np.random.randint(100, 5000, size=200)
-        })
-        return df
+# Import modular blocks safely
+import investment_database as db
+import investment_macro as macro
+import investment_technical as tech
+import investment_fundamental as fund
 
 def build_and_dispatch_weekly_report():
     print("[REPORTER] Compiling Final Alpha Long-Term Research Dashboard...")
-    print("[MACRO ENGINE] Querying Global Commodities & Dollar Index (DXY)...")
-    print("[MACRO ENGINE] Scraping Fortnightly FPI Sectoral Flows from NSDL...")
-
-    # 1. Properly fetch/load the dataframe FIRST (Prevents NameError)
-    df_ticker = load_universe_data()
-
-    # 2. Safety check before analysis
-    if df_ticker is None or df_ticker.empty:
-        print("[REPORTER ERROR] No ticker data available to generate report.")
+    
+    # 1. Fetch Global Commodities & FPI Flows
+    crude, dxy, macro_text = macro.fetch_global_commodity_trends()
+    fpi_data = macro.fetch_nsdl_fpi_flow_report()
+    
+    mapping_df = db.generate_master_mapping_sheet()
+    if mapping_df.empty:
+        print("[WARNING] Master mapping list is empty. Exiting.")
         return
-
-    # 3. Pass data to Advanced Technical Analysis
-    metrics = tech.run_advanced_technical_analysis(df_ticker, timeframe="Weekly (साप्ताहिक)")
-
-    if metrics is not None:
-        print("[REPORTER SUCCESS] Technical Metrics calculated successfully!")
-        print(f"[REPORTER SUCCESS] Processed {len(metrics)} weekly records.")
-    else:
-        print("[REPORTER ERROR] Failed to compute technical metrics.")
+        
+    # 2. Iterate and Screen All Tickers
+    for _, row in mapping_df.iterrows():
+        file_path = os.path.join(db.DB_FOLDER, f"{row['Ticker']}_5year.csv")
+        if not os.path.exists(file_path): 
+            continue
+        
+        df_ticker = pd.read_csv(file_path)
+        
+        # 🟢 SYNTAX FIX: Passing argument positionally to align exactly with tech engine expectations
+        metrics = tech.run_advanced_technical_analysis(df_ticker, "Weekly (साप्ताहिक)")
+        if metrics["status"] != "SUCCESS": 
+            continue
+            
+        fund_score, pe, debt, roe, fcf = fund.run_advanced_fundamental_analysis(row['Ticker'])
+        
+    print(f"--- NIFTY 1000 PRO ENGINE RUN FINISHED: {datetime.now().strftime('%d-%b-%Y')} ---")
 
 if __name__ == "__main__":
     build_and_dispatch_weekly_report()

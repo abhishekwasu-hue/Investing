@@ -5,7 +5,7 @@ import pandas as pd
 def run_advanced_technical_analysis(df, tf_mode, index_file_path=None):
     """
     Computes SMC Pivots, Dynamic Timeframe BOS/CHoCH, FVG Imbalances, 
-    15-Day Delivery DMA, and Wyckoff Accumulation Patterns.
+    15-Day Delivery DMA, and Wyckoff Accumulation Patterns with explicit index parsing.
     """
     if len(df) < 40:
         return {
@@ -20,6 +20,15 @@ def run_advanced_technical_analysis(df, tf_mode, index_file_path=None):
     trades_15d_avg = df_recent['No_of_Trades'].mean() if 'No_of_Trades' in df_recent.columns else 10000.0
     historical_trades_avg = df['No_of_Trades'].mean() if 'No_of_Trades' in df.columns else 10000.0
     
+    # 🟢 CRITICAL SYSTEM INDEX FIX: Force index parsing to ensure DatetimeIndex compliance
+    df_working = df.copy()
+    if 'Date' in df_working.columns:
+        df_working['Date'] = pd.to_datetime(df_working['Date'])
+        df_working.set_index('Date', inplace=True)
+    elif not isinstance(df_working.index, pd.DatetimeIndex):
+        # If Date is already the index but parsed as strings, force cast it
+        df_working.index = pd.to_datetime(df_working.index)
+    
     # 🔴 Core Pillar 2: Dynamic Multi-Timeframe Isolation Configuration
     if "75-Minute" in tf_mode:
         resample_rule, window_gap = '75min', 5
@@ -30,7 +39,7 @@ def run_advanced_technical_analysis(df, tf_mode, index_file_path=None):
     else:
         resample_rule, window_gap = 'ME', 6
         
-    tf_df = df.resample(resample_rule).agg({
+    tf_df = df_working.resample(resample_rule).agg({
         'Open': 'first', 'High': 'max', 'Low': 'min', 'Close': 'last', 'Volume': 'sum'
     }).dropna().reset_index()
     

@@ -1,8 +1,8 @@
 name: Weekly Long-Term Investment Screener
 on:
   schedule:
-    - cron: '30 10 * * 6' # Automatically fires every Saturday at 04:00 PM IST
-  workflow_dispatch:      # Manual trigger button override
+    - cron: '30 10 * * 6' # दर शनिवारी दुपारी ठीक ०४:०० वाजता IST ऑटोमॅटिक चालू होईल
+  workflow_dispatch:      # मॅन्युअल टेस्ट करण्याचे हिरवे बटण
 
 jobs:
   analyze_and_report:
@@ -10,6 +10,9 @@ jobs:
     steps:
       - name: Load Repository Code
         uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          fetch-depth: 0 # संपूर्ण इतिहास वाचण्यासाठी
         
       - name: Set Up Python Environment
         uses: actions/setup-python@v5
@@ -30,16 +33,14 @@ jobs:
           git config --global user.name "Nifty1000ResearchBot"
           git config --global user.email "research@algo.terminal"
           
-          # 🟢 FIXED: Create the warehouse folder if Git lookups complain during empty cache runs
-          mkdir -p investment_data_warehouse
-          
-          git add investment_data_warehouse/* || true
+          # सर्व नवीन डाऊनलोड झालेल्या फाईल्स ट्रॅक करणे
+          git add investment_data_warehouse/*.csv || true
           git add investment_master_mapping.csv || true
           
-          # 🟢 FIXED: Safe conditional block to push files ONLY if changes exist, avoiding Exit Code 128 crashes
-          if [ -n "$(git status --porcelain)" ]; then
-            git commit -m "Automated Weekly Nifty 1000 Warehouse Update [Skip CI]"
-            git push
-          else
+          # 🟢 जर काही बदल झाला असेल तरच कमिट करणे, अन्यथा एरर न देता शांतपणे एक्झिट होणे
+          if git diff --quiet && git diff --staged --quiet; then
             echo "No incremental data updates detected today. Repository is already optimized."
+          else
+            git commit -m "📊 Automated Weekly Nifty 1000 Warehouse Update [Skip CI]"
+            git push origin HEAD:${{ github.ref }}
           fi

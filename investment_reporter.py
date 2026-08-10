@@ -24,8 +24,23 @@ def build_and_dispatch_weekly_report():
     for _, row in mapping_df.iterrows():
         file_path = os.path.join(db.DB_FOLDER, f"{row['Ticker']}_5year.csv")
         if not os.path.exists(file_path): continue
-        
-        status, tech_score, peak, low = tech.run_advanced_technical_analysis(file_path)
+        # चारही timeframes चे analysis करण्यासाठी loop
+timeframes = ["75m", "day", "week", "month"]
+tf_results = {}
+
+for tf in timeframes:
+    status, tech_score, peak, low = tech.run_advanced_technical_analysis(
+        file_path, 
+        tf_mode=tf
+    )
+    # प्रत्येक timeframe चे निकाल साठवण्यासाठी (Save करण्यासाठी)
+    tf_results[tf] = {
+        "status": status,
+        "score": tech_score,
+        "peak": peak,
+        "low": low
+    }
+        #status, tech_score, peak, low = tech.run_advanced_technical_analysis(file_path)
         fund_score, pe, debt, roe, fcf = fund.run_advanced_fundamental_analysis(row['Ticker'])
         triage, narrative_reason = scr.evaluate_price_correction_vs_fall(file_path, peak)
         

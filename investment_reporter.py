@@ -4,7 +4,7 @@ from datetime import datetime
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
-# मल्टि-अकाउंट कडून डेटा गोळा करणे
+# इतर सर्व कोडींग मॉड्यूल्स जोडणे
 import investment_database as db
 import investment_macro as macro
 import investment_technical as tech
@@ -14,14 +14,17 @@ import investment_screener as scr
 def build_and_dispatch_weekly_report():
     print("[REPORTER] Compiling Final Alpha Long-Term Research Dashboard...")
     
-    # १. मॅक्रो न्यूज आणि एफपीआय फ्लो आणणे
+    # १. मॅक्रो न्यूज आणि एफपीआय फ्लो गोळा करणे
     crude, dxy, macro_text = macro.fetch_global_commodity_trends()
     fpi_data = macro.fetch_nsdl_fpi_flow_report()
+    
+    # 🟢 SYNTAX FIX: बॅकस्लॅश एरर टाळण्यासाठी f-string च्या बाहेर मजकूर फॉरमॅट करणे
+    clean_macro_html = str(macro_text).replace('\n', '<br>')
     
     mapping_df = db.generate_master_mapping_sheet()
     table_rows_html = ""
     
-    # २. १,००0 कंपन्यांच्या डेटाचे सखोल गाळणी चक्र फिरवणे
+    # २. १,००० कंपन्यांच्या डेटाचे सखोल गाळणी चक्र फिरवणे
     for _, row in mapping_df.iterrows():
         file_path = os.path.join(db.DB_FOLDER, f"{row['Ticker']}_5year.csv")
         if not os.path.exists(file_path): continue
@@ -50,7 +53,7 @@ def build_and_dispatch_weekly_report():
             <p style="font-size:12px; color:#718096;">📅 <b>साप्ताहिक रिपोर्ट तारीख:</b> {datetime.now().strftime('%d-%b-%Y')} | 🌍 <b>Global Data Sourced</b></p>
             
             <h3 style="color:#2c5282; margin-bottom:5px;">🌐 १. आंतरराष्ट्रीय आणि मॅक्रो घडामोडी (Global Macro Summary)</h3>
-            <p style="font-size:13px; line-height:1.5; color:#2d3748; background-color:#f7fafc; padding:12px; border-radius:4px;">{macro_text.replace('\n', '<br>')}</p>
+            <p style="font-size:13px; line-height:1.5; color:#2d3748; background-color:#f7fafc; padding:12px; border-radius:4px;">{clean_macro_html}</p>
             
             <h3 style="color:#2c5282;">📊 २. टॉप आऊटपरफॉर्मर स्टॉक लीडरबोर्ड (Alpha Stocks Leaderboard)</h3>
             <table style="width:100%; border-collapse:collapse; font-size:12px; text-align:left;">
@@ -68,9 +71,9 @@ def build_and_dispatch_weekly_report():
     </html>
     """
     
-    # तुमच्या मास्टर ईमेल आयडीवर फायनल रिपोर्ट पाठवून देणे
+    # मास्टर इनबॉक्समध्ये रिपोर्ट पाठवणे
     db.send_email_report(f"🏆 ALPHA LONG-TERM WEALTH REPORT - {datetime.now().strftime('%d-%b-%Y')}", final_html)
-    print("[🏁 TERMINAL METRICS COMPLETE] Final Long-Term Investment Report delivered successfully!")
+    print("[🏁 TERMINAL METRICS COMPLETE] Final Long-Term Investment Report processing finished safely.")
 
 if __name__ == "__main__":
     build_and_dispatch_weekly_report()

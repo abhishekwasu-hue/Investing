@@ -49,25 +49,34 @@ def build_and_dispatch_weekly_report():
             """
             
     # ३. ऑटोमॅटिक बॅकएंड HTML डॅशबोर्ड आर्काइव्ह रचना
-    final_html = f"""
+   final_html = f"""
+    <!DOCTYPE html>
     <html>
-    <body style="font-family: Arial, sans-serif; background-color:#f4f6f9; padding:20px;">
+    <head>
+        <meta charset="utf-8">
+        <title>Universal Long-Term Investing Terminal Report</title>
+    </head>
+    <body style="font-family: Arial, sans-serif; background-color:#f4f6f9; padding:20px; margin:0;">
         <div style="max-width:750px; margin:0 auto; background-color:#ffffff; padding:30px; border-radius:8px; border:1px solid #cbd5e0;">
             <h2 style="color:#1a365d; border-bottom:2px solid #3182ce; padding-bottom:10px; margin-top:0;">🏆 UNIVERSAL LONG-TERM INVESTING TERMINAL (BACKEND REPORT)</h2>
             <p style="font-size:12px; color:#718096;">📅 <b>साप्ताहिक बॅकएंड रिपोर्ट तारीख:</b> {datetime.now().strftime('%d-%b-%Y')} | 🌍 <b>Global Data Sourced</b></p>
             
             <h3 style="color:#2c5282; margin-bottom:5px;">🌐 १. जागतिक मॅक्रो आणि धोरणात्मक घोषणा</h3>
-            <p style="font-size:13px; line-height:1.5; color:#2d3748; background-color:#f7fafc; padding:12px; border-radius:4px;">{str(macro_text).replace('\n', '<br>')}</p>
+            <p style="font-size:13px; line-height:1.5; color:#2d3748; background-color:#f7fafc; padding:12px; border-radius:4px;">{macro_text_formatted}</p>
             
-            <h3 style="color:#2c5282;">📊 २. फिल्टर झालेले मल्टि-बॅगर आऊटपरफॉर्मर स्टॉक्स</h3>
+            <h3 style="color:#2c5282;">📊 २. फिल्टर झालेले मल्टि-बॅगर आऊटपरफॉर्मर स्टॉक्स ({processed_count})</h3>
             <table style="width:100%; border-collapse:collapse; font-size:12px; text-align:left;">
-                <tr style="background-color:#edf2f7; color:#2d3748;">
-                    <th style="padding:10px; border:1px solid #cbd5e0;">स्टॉक / सेक्टर</th>
-                    <th style="padding:10px; border:1px solid #cbd5e0;">डेटा रेजीम</th>
-                    <th style="padding:10px; border:1px solid #cbd5e0;">फंडामेंटल्स व क्वांट स्कोअर</th>
-                    <th style="padding:10px; border:1px solid #cbd5e0;">सिस्टम कारण मीमांसा (Research Logic)</th>
-                </tr>
-                {table_rows_html}
+                <thead>
+                    <tr style="background-color:#edf2f7; color:#2d3748;">
+                        <th style="padding:10px; border:1px solid #cbd5e0;">स्टॉक / सेक्टर</th>
+                        <th style="padding:10px; border:1px solid #cbd5e0;">डेटा रेजीम</th>
+                        <th style="padding:10px; border:1px solid #cbd5e0;">फंडामेंटल्स व क्वांट स्कोअर</th>
+                        <th style="padding:10px; border:1px solid #cbd5e0;">सिस्टम कारण मीमांसा (Research Logic)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {table_rows_html}
+                </tbody>
             </table>
             <p style="color:#a0aec0; font-size:11px; text-align:center; margin-top:25px;">🛡️ NSDL FPI फ्लो आणि १५-Day Delivery DMA नुसार भांडवल पूर्णपणे सुरक्षित ठेवण्यात आले आहे.</p>
         </div>

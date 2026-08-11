@@ -12,44 +12,88 @@ def build_and_dispatch_weekly_report():
     print("[REPORTER] Commencing Advanced Hedge Fund Grade Portfolio Scan...")
     
     # १. जागतिक मॅक्रो आणि FPI डेटा बॅकएंडला गोळा करणे
-    crude, dxy, macro_text = macro.fetch_global_commodity_trends()
-    fpi_data = macro.fetch_nsdl_fpi_flow_report()
+    try:
+        crude, dxy, macro_text = macro.fetch_global_commodity_trends()
+    except Exception as e:
+        macro_text = f"Macro Data Fetch Error: {e}"
+        
+    try:
+        fpi_data = macro.fetch_nsdl_fpi_flow_report()
+    except Exception as e:
+        fpi_data = None
+        print(f"[WARNING] Could not fetch FPI flow report: {e}")
     
     mapping_df = db.generate_master_mapping_sheet()
-    if mapping_df.empty:
+    if mapping_df is None or mapping_df.empty:
         print("[WARNING] Master mapping list is empty. Operations halted.")
         return
         
     table_rows_html = ""
+    processed_count = 0
     
-    # २. १,००0 कंपन्यांच्या डेटाचे सखोल गाळणी चक्र फिरवणे
+    # २. १,००० कंपन्यांच्या डेटाचे सखोल गाळणी चक्र फिरवणे
     for _, row in mapping_df.iterrows():
-        file_path = os.path.join(db.DB_FOLDER, f"{row['Ticker']}_5year.csv")
+        ticker = row.get('Ticker', '')
+        micro_sector = row.get('Micro_Sector', 'N/A')
+        
+        file_path = os.path.join(db.DB_FOLDER, f"{ticker}_5year.csv")
         if not os.path.exists(file_path): 
             continue
         
-        df_ticker = pd.read_csv(file_path)
-        
-        # 🟢 CRITICAL SYNC UPDATE: नवीन कोअर टेक्निकल इंजिननुसार डेटा री-सॅम्पलिंग इनपुट पास करणे
-        metrics = tech.run_advanced_technical_analysis(df_ticker, "Weekly (साप्ताहिक)")
-        if metrics["status"] != "SUCCESS": 
+        try:
+            df_ticker = pd.read_csv(file_path)
+            
+            # 🟢 CRITICAL SYNC UPDATE: नवीन कोअर टेक्निकल इंजिननुसार डेटा री-सॅम्पलिंग इनपुट पास करणे
+            metrics = tech.run_advanced_technical_analysis(df_ticker, timeframe="Weekly (साप्ताहिक)")
+            
+            # डिक्शनरी सेफ्टी चेक
+            if not isinstance(metrics, dict) or metrics.get("status") != "SUCCESS": 
+                continue
+                
+            fund_score, pe, debt, roe, fcf = fund.run_advanced_fundamental_analysis(ticker)
+            
+            wyckoff = str(metrics.get("wyckoff_phase", ""))
+            regime = str(metrics.get("regime", ""))
+            score = metrics.get("score", 0)
+            reason = metrics.get("reason", "No specific reasoning provided.")
+            
+            # Delivery DMA सुरक्षितपणे स्ट्रिंगमध्ये कन्व्हर्ट करणे
+            delivery_dma_raw = metrics.get("delivery_dma", 0.0)
+            try:
+                delivery_dma = f"{float(delivery_dma_raw):.1f}%" if pd.notna(delivery_dma_raw) else "N/A"
+            except (ValueError, TypeError):
+                delivery_dma = "N/A"
+            
+            # 📐 केवळ सर्वोत्तम आऊटपरफॉर्मर, वायकॉफ स्प्रिंग (PHASE_C) आणि निरोगी करेक्शन असलेले स्टॉक्स फिल्टर करणे
+            if "PHASE_C" in wyckoff or regime == "HEALTHY_PRICE_CORRECTION":
+                table_rows_html += f"""
+                <tr style="border-bottom:1px solid #cbd5e0;">
+                    <td style="padding:10px; font-weight:bold; color:#1a365d;">{ticker}<br><span style="font-size:11px; color:#718096;">{micro_sector}</span></td>
+                    <td style="padding:10px; color:green; font-weight:bold;">{regime}</td>
+                    <td style="padding:10px; font-size:12px;">PE: {pe} | ROE: {roe}%<br>Quant Score: {score}/100 | Delivery 15D: {delivery_dma}</td>
+                    <td style="padding:10px; font-size:12px; color:#4a5568; line-height:1.4;"><b>{wyckoff}:</b> {reason}</td>
+                </tr>
+                """
+                processed_count += 1
+                
+        except Exception as err:
+            print(f"[ERROR] Error processing ticker {ticker}: {err}")
             continue
+
+    if not table_rows_html:
+        table_rows_html = """
+        <tr>
+            <td colspan="4" style="padding:15px; text-align:center; color:#718096;">
+                सध्याच्या क्रायटेरियानुसार (PHASE_C / HEALTHY_PRICE_CORRECTION) कोणताही स्टॉक फिल्टर झाला नाही.
+            </td>
+        </tr>
+        """
             
-        fund_score, pe, debt, roe, fcf = fund.run_advanced_fundamental_analysis(row['Ticker'])
-        
-        # 📐 केवळ सर्वोत्तम आऊटपरफॉर्मर, वायकॉफ स्प्रिंग (PHASE_C) आणि निरोगी करेक्शन असलेले स्टॉक्स रिपोर्टमध्ये फिल्टर करणे
-        if "PHASE_C" in metrics["wyckoff_phase"] or metrics["regime"] == "HEALTHY_PRICE_CORRECTION":
-            table_rows_html += f"""
-            <tr style="border-bottom:1px solid #cbd5e0;">
-                <td style="padding:10px; font-weight:bold; color:#1a365d;">{row['Ticker']}<br><span style="font-size:11px; color:#718096;">{row['Micro_Sector']}</span></td>
-                <td style="padding:10px; color:green; font-weight:bold;">{metrics["regime"]}</td>
-                <td style="padding:10px; font-size:12px;">PE: {pe} | ROE: {roe}%<br>Quant Score: {metrics["score"]}/100 | Delivery 15D: {metrics["delivery_dma"]:.1f}%</td>
-                <td style="padding:10px; font-size:12px; color:#4a5568; line-height:1.4;"><b>{metrics["wyckoff_phase"]}:</b> {metrics["reason"]}</td>
-            </tr>
-            """
-            
+    # f-string च्या आत \n चा वापर टाळण्यासाठी आधीच रिप्लेस केले आहे
+    macro_text_formatted = str(macro_text).replace('\n', '<br>')
+
     # ३. ऑटोमॅटिक बॅकएंड HTML डॅशबोर्ड आर्काइव्ह रचना
-   final_html = f"""
+    final_html = f"""
     <!DOCTYPE html>
     <html>
     <head>
@@ -84,6 +128,15 @@ def build_and_dispatch_weekly_report():
     </html>
     """
     
+    # रिपोर्ट फाईल सेव्ह करणे
+    try:
+        report_filename = f"weekly_report_{datetime.now().strftime('%Y%m%d')}.html"
+        with open(report_filename, "w", encoding="utf-8") as f:
+            f.write(final_html)
+        print(f"[REPORTER] Report successfully generated and saved to: {report_filename}")
+    except Exception as e:
+        print(f"[WARNING] Could not save HTML file: {e}")
+
     print(f"--- NIFTY 1000 PRO CORE ANALYSIS SYSTEM METRICS LOCKED: {datetime.now().strftime('%d-%b-%Y')} ---")
     print("[SUCCESS] Multi-Timeframe Background Sync finished with ZERO repository conflicts.")
 

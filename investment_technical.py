@@ -3,33 +3,25 @@ import numpy as np
 import pandas as pd
 
 def run_advanced_technical_analysis(df, tf_mode, index_file_path=None):
-    """
-    Computes SMC Pivots, Dynamic Timeframe BOS/CHoCH, FVG Imbalances, 
-    15-Day Delivery DMA, and Wyckoff Accumulation Patterns with explicit index parsing.
-    """
     if len(df) < 40:
         return {
             "status": "ERROR", "tech_score": 50, "regime": "INSUFFICIENT_DATA", 
-            "reason": "Insufficient Ledger Data", "swing_highs": [], "swing_lows": [], 
+            "reason": "Insufficient Data Pool", "swing_highs": [], "swing_lows": [], 
             "fvg_boxes": [], "market_gate": "GREEN_ZONE", "delivery_dma": 50.0, "chart_data": df.reset_index()
         }
         
-    # 🔴 Core Pillar 1: 15-Day Moving Delivery Accumulation Cycle (DMA)
     df_recent = df.tail(15)
     delivery_15d_avg = df_recent['Delivery_Pct'].mean() if 'Delivery_Pct' in df_recent.columns else 50.0
     trades_15d_avg = df_recent['No_of_Trades'].mean() if 'No_of_Trades' in df_recent.columns else 10000.0
     historical_trades_avg = df['No_of_Trades'].mean() if 'No_of_Trades' in df.columns else 10000.0
     
-    # 🟢 CRITICAL SYSTEM INDEX FIX: Force index parsing to ensure DatetimeIndex compliance
     df_working = df.copy()
     if 'Date' in df_working.columns:
         df_working['Date'] = pd.to_datetime(df_working['Date'])
         df_working.set_index('Date', inplace=True)
     elif not isinstance(df_working.index, pd.DatetimeIndex):
-        # If Date is already the index but parsed as strings, force cast it
         df_working.index = pd.to_datetime(df_working.index)
     
-    # 🔴 Core Pillar 2: Dynamic Multi-Timeframe Isolation Configuration
     if "75-Minute" in tf_mode:
         resample_rule, window_gap = '75min', 5
     elif "Daily" in tf_mode:
@@ -43,7 +35,7 @@ def run_advanced_technical_analysis(df, tf_mode, index_file_path=None):
         'Open': 'first', 'High': 'max', 'Low': 'min', 'Close': 'last', 'Volume': 'sum'
     }).dropna().reset_index()
     
-    # Lightweight Performance Optimisation: Limit array sizing to speed up Plotly rendering
+    # वेग वाढवण्यासाठी डेटा नियंत्रित करणे (लेटेस्ट १२० ओळी)
     tf_df = tf_df.tail(120).reset_index(drop=True)
     
     if len(tf_df) < 15:
@@ -53,7 +45,6 @@ def run_advanced_technical_analysis(df, tf_mode, index_file_path=None):
             "fvg_boxes": [], "market_gate": "GREEN_ZONE", "delivery_dma": delivery_15d_avg, "chart_data": tf_df
         }
         
-    # --- Option Metrics & Momentum Indexes (RSI 14) ---
     change = tf_df['Close'].diff()
     gain = np.where(change > 0, change, 0)
     loss = np.where(change < 0, -change, 0)
@@ -67,7 +58,6 @@ def run_advanced_technical_analysis(df, tf_mode, index_file_path=None):
     latest_rsi = tf_df['RSI'].iloc[-1]
     swing_highs, swing_lows, fvg_boxes = [], [], []
     
-    # 🔴 Core Pillar 3: Wyckoff Phase-C Base Consolidation Triage
     recent_candles = tf_df.tail(6)
     range_pct = (recent_candles['High'].max() - recent_candles['Low'].min()) / (recent_candles['Low'].min() + 1e-10)
     wyckoff_phase_status = "PHASE_B (Consolidation Zone)"
@@ -82,7 +72,6 @@ def run_advanced_technical_analysis(df, tf_mode, index_file_path=None):
         if i < len(tf_df) - 2 and tf_df['High'].iloc[i] < tf_df['Low'].iloc[i+2]:
             fvg_boxes.append({"top": tf_df['Low'].iloc[i+2], "bottom": tf_df['High'].iloc[i], "type": "BULLISH"})
                 
-    # 🔴 Core Pillar 4: Nifty 500 Macro Trend Correlation Gate Filter
     market_gate = "GREEN_ZONE"
     if index_file_path and os.path.exists(index_file_path):
         idx_df = pd.read_csv(index_file_path)
@@ -92,7 +81,6 @@ def run_advanced_technical_analysis(df, tf_mode, index_file_path=None):
             if idx_df['Close'].iloc[-1] < idx_ema_200:
                 market_gate = "RED_ZONE"
                 
-    # --- Master Quantitative Engine Score Sheet Matrix ---
     quant_score = 40
     if delivery_15d_avg >= 65.0: quant_score += 15
     if trades_15d_avg < historical_trades_avg: quant_score += 15

@@ -146,9 +146,12 @@ stock_report_html = f"""
 sector_report_html = f"""
 <html>
 <body style='font-family: Arial, sans-serif; padding: 45px; color: #2d3748;'>
-    <div style='max-width: 800px; margin: 0 auto; border: 2px solid #2b6cb0; padding: 45px; border-radius: 12px; background-color:#ffffff;'>
-        <h1 style='color:#2b6cb0; text-align:center; font-size:24px; margin-top:0;'>🌐 ALPHA QUANT SECTOR MACRO DOSSIER (CONFIDENTIAL)</h1>
-        <p style='text-align:center; color:#718096;'>📅 <b>विश्लेषण सत्र दिनांक:</b> {current_date_str} | 📂 <b>लक्ष्य क्षेत्र:</b> {selected_sector}</p>
-        <hr style='border: 1px solid #63b3ed; margin: 20px 0;'>
-        
-        <h3 style='color:#1a365d;'>🌍 अ. आंतरराष्ट्रीय भू-राजकीय आणि कमोडिटी घडामोडी (Global Commodity Vectors)</h3>
+<div style='max-width: 800px; margin: 0 auto; border: 2px solid #2b6cb0; padding: 45px; border-radius: 12px; background-color:#ffffff;'>
+<h1 style='color:#2b6cb0; text-align:center; font-size:24px; margin-top:0;'>🌐 ALPHA QUANT SECTOR MACRO DOSSIER (CONFIDENTIAL)</h1>
+<p style='text-align:center; color:#718096;'>📅 <b>विश्लेषण सत्र दिनांक:</b> {current_date_str} | 📂 <b>लक्ष्य क्षेत्र:</b> {selected_sector}</p>
+<hr style='border: 1px solid #63b3ed; margin: 20px 0;'>
+<h3 style='color:#1a365d;'>🌍 अ. आंतरराष्ट्रीय भू-राजकीय आणि कमोडिटी घडामोडी (Global Commodity Vectors)</h3>
+</div>
+</body>
+</html>
+"""

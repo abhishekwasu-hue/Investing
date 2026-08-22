@@ -43,3 +43,18 @@ def get_live_ltp(symbol: str, active_broker: Optional[BrokerAdapter] = None) -> 
         if ltp is not None:
             return ltp
     return None  # dashboard ने None आल्यास "Live data unavailable — showing delayed price" दाखवावं
+
+
+def get_intraday_ohlc_data(symbol: str, from_date, to_date, active_broker: Optional[BrokerAdapter] = None) -> Optional[pd.DataFrame]:
+    """
+    75-Minute सारख्या sub-daily टाइमफ्रेमसाठी लागणारा मिनिट-स्तरीय डेटा.
+
+    ⚠️ NSE/Yahoo Finance (free source) कडे फक्त daily (EOD) डेटा असतो —
+    त्यामुळे intraday फक्त **live broker connected असेल तरच** (उदा. Upstox)
+    मिळू शकतो. Broker नसेल किंवा त्याने intraday दिलं नाही, तर None परत
+    येतं — dashboard ने त्यावर स्पष्ट संदेश दाखवावा, daily डेटा resample
+    करून खोटा intraday चार्ट बनवू नये.
+    """
+    if active_broker is None or not active_broker.is_connected():
+        return None
+    return active_broker.get_intraday_historical(symbol, from_date, to_date, interval_minutes=15)

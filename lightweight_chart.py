@@ -14,7 +14,20 @@ def build_lightweight_chart_html(chart_df: pd.DataFrame, analysis: dict, ticker:
                                   timeframe: str, height: int = 520) -> str:
     df = chart_df.copy()
     df["Date"] = pd.to_datetime(df["Date"])
-    df["time"] = df["Date"].dt.strftime("%Y-%m-%d")
+
+    # Daily/Weekly/Monthly साठी नुसती तारीख पुरते, पण Intraday (75-Minute)
+    # साठी वेळही लागते — नाहीतर एकाच दिवसाचे सगळे बार्स एकावर एक collapse
+    # होतात. एकाच calendar date वर एकापेक्षा जास्त बार्स असतील तर ते
+    # intraday आहे असं ओळखून Unix timestamp (seconds) वापरतो.
+    is_intraday = df["Date"].dt.date.duplicated().any()
+    if is_intraday:
+        # dtype-agnostic (pandas कधी datetime64[ns] तर कधी datetime64[us]
+        # वापरतं — astype(int64) दोन्हीत वेगळा result देतं, त्यामुळे थेट
+        # Timedelta ने भागून सेकंद काढतो, हे नेहमी बरोबर येतं)
+        epoch = pd.Timestamp("1970-01-01")
+        df["time"] = ((df["Date"] - epoch) / pd.Timedelta(seconds=1)).astype(int)
+    else:
+        df["time"] = df["Date"].dt.strftime("%Y-%m-%d")
 
     candles = df[["time", "Open", "High", "Low", "Close"]].rename(
         columns={"Open": "open", "High": "high", "Low": "low", "Close": "close"}

@@ -1,5 +1,6 @@
 import streamlit as str_app
 import pandas as pd
+import plotly.graph_objects as go
 
 import investment_fundamental as fund
 from app_state import render_global_sidebar, render_disclaimer_banner
@@ -11,43 +12,129 @@ authenticator = render_auth_gate()
 str_app.title("📊 Fundamental Analysis")
 
 state = render_global_sidebar()
-ticker = state["ticker"]
+ticker, sector, mapping_df = state["ticker"], state["sector"], state["mapping_df"]
 
-with str_app.spinner(f"{ticker} साठी Yahoo Finance वरून live fundamentals आणत आहे..."):
+
+def _fmt(v, suffix="", decimals=2):
+    return f"{v:.{decimals}f}{suffix}" if v is not None else "N/A"
+
+
+with str_app.spinner(f"{ticker} साठी Yahoo Finance + financial statements वरून live fundamentals आणत आहे..."):
     result = fund.run_advanced_fundamental_analysis(ticker)
     quarterly_rows = fund.get_quarterly_earnings_table(ticker, n_quarters=6)
 
 str_app.caption(f"Source: {result['data_source']}")
 
-c1, c2, c3, c4, c5 = str_app.columns(5)
+# ---- Top-line score + market cap ----
+c1, c2 = str_app.columns([1, 3])
 c1.metric("Fundamental Score", f"{result['fundamental_score']}/100")
-c2.metric("PE Ratio", f"{result['pe_ratio']:.1f}" if result["pe_ratio"] else "N/A")
-c3.metric("ROE", f"{result['roe']:.1f}%" if result["roe"] is not None else "N/A")
-c4.metric("Debt/Equity", f"{result['debt_to_equity']:.2f}" if result["debt_to_equity"] is not None else "N/A")
-c5.metric("Free Cash Flow", result["free_cash_flow"])
-
-c6, c7 = str_app.columns(2)
-sg = result["sales_growth_3y"]
-pg = result["profit_growth_3y"]
-c6.metric("Sales CAGR (annual growth)", f"{sg*100:.1f}%" if sg is not None else "N/A")
-c7.metric("Profit CAGR (annual growth)", f"{pg*100:.1f}%" if pg is not None else "N/A")
+c2.markdown(
+    f"<div class='metric-card' style='text-align:left; height:100%; display:flex; align-items:center;'>"
+    f"<b>Market Cap:</b>&nbsp; {_fmt(result['market_cap_cr'], ' Cr', 0) if result['market_cap_cr'] else 'N/A'}"
+    f"</div>",
+    unsafe_allow_html=True,
+)
 
 str_app.markdown("---")
+
+# ---- Section 1: Valuation ----
+str_app.subheader("💰 Valuation")
+v1, v2, v3, v4, v5 = str_app.columns(5)
+v1.metric("PE Ratio", _fmt(result["pe_ratio"], decimals=1))
+v2.metric("PB Ratio", _fmt(result["pb_ratio"], decimals=2))
+v3.metric("EV/EBITDA", _fmt(result["ev_ebitda"], decimals=1))
+v4.metric("Price/Sales", _fmt(result["price_to_sales"], decimals=2))
+v5.metric("Dividend Yield", _fmt(result["dividend_yield"], "%", 2))
+
+# ---- Section 2: Profitability ----
+str_app.subheader("📈 Profitability")
+p1, p2, p3, p4, p5 = str_app.columns(5)
+p1.metric("ROE", _fmt(result["roe"], "%", 1))
+p2.metric("ROA", _fmt(result["roa"], "%", 1))
+p3.metric("Operating Margin", _fmt(result["operating_margin"], "%", 1))
+p4.metric("Net Margin", _fmt(result["net_margin"], "%", 1))
+p5.metric("Gross Margin", _fmt(result["gross_margin"], "%", 1))
+
+# ---- Section 3: Financial Health ----
+str_app.subheader("🏦 Financial Health")
+f1, f2, f3 = str_app.columns(3)
+f1.metric("Debt/Equity", _fmt(result["debt_to_equity"], decimals=2))
+f2.metric("Current Ratio", _fmt(result["current_ratio"], decimals=2))
+f3.metric("Book Value/Share", _fmt(result["book_value_per_share"], decimals=1))
+
+# ---- Section 4: Growth ----
+str_app.subheader("🚀 Growth (Annual CAGR)")
+g1, g2 = str_app.columns(2)
+sg, pg = result["sales_growth_3y"], result["profit_growth_3y"]
+g1.metric("Sales CAGR", f"{sg*100:.1f}%" if sg is not None else "N/A")
+g2.metric("Profit CAGR", f"{pg*100:.1f}%" if pg is not None else "N/A")
+
+# ---- Section 5: Cash Flow ----
+str_app.subheader("💵 Cash Flow")
+cf1, cf2, cf3 = str_app.columns(3)
+cf1.metric("Free Cash Flow", result["free_cash_flow"])
+cf2.metric("FCF (Rs. Cr)", _fmt(result["free_cash_flow_cr"], " Cr", 0) if result["free_cash_flow_cr"] else "N/A")
+cf3.metric("Operating CF (Rs. Cr)", _fmt(result["operating_cf_cr"], " Cr", 0) if result["operating_cf_cr"] else "N/A")
+
+str_app.markdown("---")
+
+# ---- Quarterly trend — टेबल + चार्ट दोन्ही ----
 str_app.subheader(f"📈 तिमाही Sales & Net Profit — {ticker}")
 
 if quarterly_rows:
-    df = pd.DataFrame(quarterly_rows)
-    df = df.rename(columns={
+    qdf = pd.DataFrame(quarterly_rows)
+
+    trend_fig = go.Figure()
+    trend_fig.add_trace(go.Bar(x=qdf["quarter"], y=qdf["sales_cr"], name="Sales (Rs. Cr)", marker_color="#3182ce"))
+    trend_fig.add_trace(go.Bar(x=qdf["quarter"], y=qdf["profit_cr"], name="Net Profit (Rs. Cr)", marker_color="#38a169"))
+    trend_fig.update_layout(
+        barmode="group", height=350, template="plotly_dark",
+        margin=dict(l=10, r=10, t=20, b=10), paper_bgcolor="#0b0e14", plot_bgcolor="#0b0e14",
+        legend=dict(orientation="h", yanchor="bottom", y=1.02),
+    )
+    str_app.plotly_chart(trend_fig, use_container_width=True)
+
+    display_df = qdf.rename(columns={
         "quarter": "Quarter", "sales_cr": "Sales (Rs. Cr)",
         "profit_cr": "Net Profit (Rs. Cr)", "qoq_growth_pct": "QoQ Sales Growth %",
     })
-    str_app.dataframe(df, use_container_width=True, hide_index=True)
+    str_app.dataframe(display_df, use_container_width=True, hide_index=True)
     str_app.caption(f"Yahoo Finance कडून उपलब्ध शेवटचे {len(quarterly_rows)} तिमाही आकडे. सहसा ४-५ तिमाहीच उपलब्ध असतात.")
 else:
     str_app.warning("⚠️ या ticker साठी तिमाही earnings डेटा सध्या Yahoo Finance वरून उपलब्ध नाही.")
 
+
+# ---- Peer Comparison (same micro-sector) ----
+str_app.markdown("---")
+str_app.subheader(f"🔍 Peer Comparison — {sector}")
+
+peer_tickers = mapping_df[mapping_df["Micro_Sector"] == sector]["Ticker"].tolist()
+peer_tickers = [t for t in peer_tickers if t != ticker]
+
+if peer_tickers:
+    with str_app.spinner(f"{sector} मधल्या इतर कंपन्यांचा डेटा आणत आहे (जास्तीत जास्त ६)..."):
+        peer_rows = fund.get_peer_comparison(peer_tickers, max_peers=6)
+        # निवडलेला ticker स्वतःही तुलनेत दाखवतो, वरती ठेवून
+        peer_rows.insert(0, {
+            "Ticker": f"{ticker} (निवडलेला)", "Score": result["fundamental_score"],
+            "PE": result["pe_ratio"], "ROE %": result["roe"],
+            "Debt/Equity": result["debt_to_equity"], "Net Margin %": result["net_margin"],
+        })
+    if len(peer_rows) > 1:
+        peer_df = pd.DataFrame(peer_rows)
+        str_app.dataframe(
+            peer_df, use_container_width=True, hide_index=True,
+            column_config={"Score": str_app.column_config.ProgressColumn("Score", min_value=0, max_value=100, format="%d")},
+        )
+    else:
+        str_app.info("ℹ️ Peer तुलनेसाठी पुरेसा डेटा मिळाला नाही.")
+else:
+    str_app.info("ℹ️ या micro-sector मध्ये इतर कंपन्या मॅपिंगमध्ये नाहीत.")
+
 str_app.markdown(
     "<p style='font-size:11px; color:#a0aec0; margin-top:20px;'>⚠️ हे आकडे केवळ माहितीसाठी आहेत, "
-    "गुंतवणूक सल्ला नाहीत. आकडे चुकीचे/जुने असू शकतात — कंपनीच्या अधिकृत फायलिंगशी पडताळून घ्या.</p>",
+    "गुंतवणूक सल्ला नाहीत. काही आकडे थेट Yahoo Finance वरून, तर काही (ROE/Debt-Equity/Current Ratio "
+    "इ.) कंपनीच्या ताज्या financial statements मधून calculate केलेले आहेत — तरीही चुकीचे/जुने असू शकतात, "
+    "कंपनीच्या अधिकृत फायलिंगशी पडताळून घ्या.</p>",
     unsafe_allow_html=True,
 )

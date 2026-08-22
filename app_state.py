@@ -9,9 +9,18 @@ import streamlit as str_app
 import pandas as pd
 
 from broker_adapters import get_broker_adapter, AVAILABLE_BROKERS
+from broker_adapters.free_data_adapter import FreeDataAdapter
 
 MAPPING_FILE = "investment_master_mapping.csv"
 DB_FOLDER = "investment_data_warehouse"
+_free_adapter = FreeDataAdapter()
+
+
+def ensure_index_data_path() -> str:
+    """Market-gate तपासणीसाठी RELIANCE.NS हा NIFTY-proxy म्हणून वापरला जातो —
+    तो local नसेल तर आत्ता (on-demand) NSE वरून आणून ठेवतो."""
+    _free_adapter._load("RELIANCE.NS")  # नसेल तर आपोआप fetch होईल
+    return os.path.join(DB_FOLDER, "RELIANCE.NS_5year.csv")
 
 
 @str_app.cache_data

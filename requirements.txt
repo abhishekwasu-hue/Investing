@@ -1,0 +1,13 @@
+streamlit
+plotly
+pandas
+numpy
+yfinance
+jugaad-data
+reportlab
+kaleido==0.2.1
+feedparser
+streamlit-authenticator
+bcrypt
+razorpay
+PyYAML

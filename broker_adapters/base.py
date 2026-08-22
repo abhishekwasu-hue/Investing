@@ -39,5 +39,14 @@ class BrokerAdapter(ABC):
         """
         raise NotImplementedError
 
+    def get_intraday_historical(self, symbol: str, from_date, to_date, interval_minutes: int = 15) -> Optional[pd.DataFrame]:
+        """
+        इंट्रा-डे (मिनिट-स्तरीय) OHLCV — 75-Minute सारख्या sub-daily
+        टाइमफ्रेमसाठी लागतो. सगळे brokers हे देत नाहीत — डिफॉल्ट
+        implementation None परत देतं (म्हणजे "हा broker intraday देत नाही").
+        जो broker देतो त्याने हे override करावं.
+        """
+        return None
+
     def display_name(self) -> str:
         return self.name

@@ -79,6 +79,37 @@ class UpstoxAdapter(BrokerAdapter):
             print(f"[UpstoxAdapter] historical fetch failed for {symbol}: {e}")
             return None
 
+    def get_intraday_historical(self, symbol: str, from_date, to_date, interval_minutes: int = 15) -> Optional[pd.DataFrame]:
+        """
+        मिनिट-स्तरीय (intraday) कॅन्डल्स — 75-Minute chart साठी लागतात.
+        Upstox चा V2 historical-candle API '1minute'/'30minute' सारखे ठराविक
+        intervals देतो (75 नाही थेट) — म्हणून जवळचा उपलब्ध interval आणून,
+        नंतर pandas मध्ये '75min' वर resample करतो.
+
+        ⚠️ Upstox intraday data सहसा मर्यादित इतिहासासाठीच ठेवतो (काही
+        आठवडे/महिने, वर्षानुवर्षे नाही) — आणि exact endpoint/interval names
+        त्यांच्या API version नुसार बदलू शकतात. वापरण्याआधी एकदा
+        https://upstox.com/developer/api-documentation/v2/historical-candle
+        वर पडताळून घ्या; हा sandbox मधून टेस्ट करता आलेला नाही.
+        """
+        if not self.is_connected():
+            return None
+        instrument_key = self._to_instrument_key(symbol)
+        unit = "1minute" if interval_minutes <= 5 else "30minute"
+        try:
+            url = f"{UPSTOX_BASE_URL}/historical-candle/{instrument_key}/{unit}/{to_date}/{from_date}"
+            resp = requests.get(url, headers=self._headers(), timeout=10)
+            resp.raise_for_status()
+            candles = resp.json().get("data", {}).get("candles", [])
+            if not candles:
+                return None
+            df = pd.DataFrame(candles, columns=["Date", "Open", "High", "Low", "Close", "Volume", "OI"])
+            df["Date"] = pd.to_datetime(df["Date"]).dt.tz_localize(None)
+            return df.sort_values("Date").reset_index(drop=True)
+        except Exception as e:
+            print(f"[UpstoxAdapter] intraday fetch failed for {symbol}: {e}")
+            return None
+
     def _to_instrument_key(self, symbol: str) -> str:
         """'RELIANCE.NS' -> Upstox instrument_key, e.g. 'NSE_EQ|RELIANCE'.
         प्रत्यक्षात Upstox च्या instrument master CSV वरून exact key मॅप करणं

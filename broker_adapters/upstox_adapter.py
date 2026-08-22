@@ -14,6 +14,7 @@ import pandas as pd
 import requests
 
 from broker_adapters.base import BrokerAdapter
+from secrets_helper import read_secret
 
 UPSTOX_BASE_URL = "https://api.upstox.com/v2"
 
@@ -22,7 +23,7 @@ class UpstoxAdapter(BrokerAdapter):
     name = "upstox"
 
     def __init__(self, access_token: Optional[str] = None):
-        self.access_token = access_token or os.environ.get("UPSTOX_ACCESS_TOKEN")
+        self.access_token = access_token or read_secret("UPSTOX_ACCESS_TOKEN")
 
     def is_connected(self) -> bool:
         return bool(self.access_token)

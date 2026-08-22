@@ -19,9 +19,10 @@ from datetime import date, timedelta
 import razorpay
 
 import subscription
+from secrets_helper import read_secret
 
-RAZORPAY_KEY_ID = os.environ.get("RAZORPAY_KEY_ID")
-RAZORPAY_KEY_SECRET = os.environ.get("RAZORPAY_KEY_SECRET")
+RAZORPAY_KEY_ID = read_secret("RAZORPAY_KEY_ID")
+RAZORPAY_KEY_SECRET = read_secret("RAZORPAY_KEY_SECRET")
 
 PRO_PLAN_PRICE_INR = 499
 PRO_PLAN_DURATION_DAYS = 30

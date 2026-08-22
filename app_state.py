@@ -63,17 +63,30 @@ def render_global_sidebar() -> dict:
     active_broker = None
     if broker_choice != "free":
         broker_label = AVAILABLE_BROKERS[broker_choice][0]
-        token = str_app.sidebar.text_input(f"{broker_label} Access Token:", type="password", key="broker_token")
-        if token:
-            try:
-                candidate = get_broker_adapter(broker_choice, access_token=token)
-                if candidate.is_connected():
-                    active_broker = candidate
-                    str_app.sidebar.success(f"✅ {candidate.display_name()} जोडलं गेलं")
-                else:
-                    str_app.sidebar.warning("Connect झालं नाही — free data वापरलं जाईल.")
-            except Exception as e:
-                str_app.sidebar.error(f"Connect अयशस्वी: {e}")
+
+        # आधी secret (Streamlit Cloud Secrets / local .env) मध्ये token आहे का बघतो —
+        # असेल तर मॅन्युअली paste करायची गरजच नाही, आपोआप connect होतो.
+        auto_candidate = get_broker_adapter(broker_choice)
+        if auto_candidate.is_connected():
+            active_broker = auto_candidate
+            str_app.sidebar.success(f"✅ {active_broker.display_name()} जोडलं गेलं (Secrets मधून आपोआप)")
+        else:
+            token = str_app.sidebar.text_input(f"{broker_label} Access Token:", type="password", key="broker_token")
+            if token:
+                try:
+                    candidate = get_broker_adapter(broker_choice, access_token=token)
+                    if candidate.is_connected():
+                        active_broker = candidate
+                        str_app.sidebar.success(f"✅ {candidate.display_name()} जोडलं गेलं")
+                    else:
+                        str_app.sidebar.warning("Connect झालं नाही — free data वापरलं जाईल.")
+                except Exception as e:
+                    str_app.sidebar.error(f"Connect अयशस्वी: {e}")
+            else:
+                str_app.sidebar.caption(
+                    "Token नाही सापडला (ना Secrets मध्ये, ना इथे paste केलेला) — वर टाका किंवा "
+                    "Streamlit Cloud च्या App Settings → Secrets मध्ये `UPSTOX_ACCESS_TOKEN` सेट करा."
+                )
     else:
         str_app.sidebar.caption("Free NSE (delayed) data वापरलं जातंय.")
     str_app.sidebar.markdown("---")

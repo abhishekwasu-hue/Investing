@@ -5,7 +5,7 @@ from datetime import datetime
 import investment_technical as tech
 import data_provider
 from chart_builder import build_technical_chart
-from app_state import render_global_sidebar, render_disclaimer_banner, DB_FOLDER
+from app_state import render_global_sidebar, render_disclaimer_banner, DB_FOLDER, ensure_index_data_path
 from auth import render_auth_gate
 import os
 
@@ -17,17 +17,18 @@ str_app.title("📈 Technical Chart & Structure Analysis")
 state = render_global_sidebar()
 ticker, timeframe, active_broker = state["ticker"], state["timeframe"], state["active_broker"]
 
-# ---- डेटा लोड (broker-agnostic, आपोआप free data वर fallback) ----
+# ---- डेटा लोड (broker-agnostic, आपोआप free data वर fallback, on-demand fetch) ----
 try:
     to_date = datetime.now().date()
     from_date = to_date.replace(year=to_date.year - 5)
-    df_raw = data_provider.get_ohlc_data(ticker, from_date, to_date, active_broker=active_broker)
+    with str_app.spinner(f"{ticker} साठी डेटा तयार करत आहे (पहिल्यांदाच थोडा वेळ लागू शकतो)..."):
+        df_raw = data_provider.get_ohlc_data(ticker, from_date, to_date, active_broker=active_broker)
 except FileNotFoundError as e:
     str_app.error(f"❌ {e}")
     str_app.stop()
 
 df_raw["Date"] = pd.to_datetime(df_raw["Date"])
-index_path = os.path.join(DB_FOLDER, "RELIANCE.NS_5year.csv")
+index_path = ensure_index_data_path()
 
 analysis = tech.run_advanced_technical_analysis(df_raw, timeframe, index_path)
 

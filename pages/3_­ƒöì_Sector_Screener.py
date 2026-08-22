@@ -3,7 +3,8 @@ import streamlit as str_app
 import pandas as pd
 
 import investment_technical as tech
-from app_state import render_global_sidebar, render_disclaimer_banner, DB_FOLDER
+import data_provider
+from app_state import render_global_sidebar, render_disclaimer_banner, DB_FOLDER, ensure_index_data_path
 from auth import render_auth_gate
 import subscription
 
@@ -14,6 +15,7 @@ username = str_app.session_state["username"]
 
 state = render_global_sidebar()
 sector, timeframe, mapping_df = state["sector"], state["timeframe"], state["mapping_df"]
+active_broker = state["active_broker"]
 
 if not subscription.check_and_increment(username, "sector_screener"):
     str_app.error(
@@ -25,19 +27,21 @@ if not subscription.check_and_increment(username, "sector_screener"):
 str_app.title("🔍 Sector Screener")
 
 sector_tickers = mapping_df[mapping_df["Micro_Sector"] == sector]["Ticker"].tolist()
-index_path = os.path.join(DB_FOLDER, "RELIANCE.NS_5year.csv")
+index_path = ensure_index_data_path()
 
 str_app.subheader(f"📂 {sector} — {len(sector_tickers)} tickers स्कॅन होत आहेत")
+str_app.caption("ℹ️ ज्या tickers साठी local data नाही, ते आत्ता NSE वरून on-demand आणले जातील — पहिल्यांदा थोडा वेळ लागू शकतो.")
 
 rows = []
 progress = str_app.progress(0)
+status_text = str_app.empty()
+
 for i, ticker in enumerate(sector_tickers):
-    file_path = os.path.join(DB_FOLDER, f"{ticker}_5year.csv")
-    if not os.path.exists(file_path):
-        progress.progress((i + 1) / len(sector_tickers))
-        continue
+    status_text.text(f"स्कॅन होत आहे: {ticker} ({i+1}/{len(sector_tickers)})")
     try:
-        df_raw = pd.read_csv(file_path)
+        to_date = pd.Timestamp.now().date()
+        from_date = to_date.replace(year=to_date.year - 5)
+        df_raw = data_provider.get_ohlc_data(ticker, from_date, to_date, active_broker=active_broker)
         df_raw["Date"] = pd.to_datetime(df_raw["Date"])
         analysis = tech.run_advanced_technical_analysis(df_raw, timeframe, index_path)
         if analysis["status"] == "SUCCESS":
@@ -49,14 +53,17 @@ for i, ticker in enumerate(sector_tickers):
                 "15D Delivery %": round(analysis["delivery_15d"], 1),
                 "Market Gate": analysis["market_gate"].replace("_", " "),
             })
+    except FileNotFoundError:
+        print(f"[Screener] {ticker}: NSE वरून डेटा मिळाला नाही, वगळत आहे.")
     except Exception as e:
         print(f"[Screener] {ticker} failed: {e}")
     progress.progress((i + 1) / len(sector_tickers))
 
 progress.empty()
+status_text.empty()
 
 if not rows:
-    str_app.warning("⚠️ या sector साठी अजून local data नाही. आधी `investment_database.py` चालवा.")
+    str_app.warning("⚠️ या sector मधल्या कुठल्याही ticker साठी NSE वरून डेटा मिळाला नाही (नेटवर्क/NSE सर्व्हर इश्यू असू शकतो).")
     str_app.stop()
 
 result_df = pd.DataFrame(rows).sort_values("Quant Score", ascending=False).reset_index(drop=True)

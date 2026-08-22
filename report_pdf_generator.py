@@ -176,9 +176,15 @@ def build_stock_report_pdf(
     fund_table = Table(
         [
             ["Fundamental Score", f"{fr.get('fundamental_score', 'N/A')}/100"],
+            ["Market Cap", _fmt(f"{fr['market_cap_cr']:,.0f}" if fr.get("market_cap_cr") else None, " Cr")],
             ["PE Ratio", _fmt(round(fr["pe_ratio"], 1) if fr.get("pe_ratio") else None)],
+            ["PB Ratio", _fmt(round(fr["pb_ratio"], 2) if fr.get("pb_ratio") else None)],
             ["ROE", _fmt(round(fr["roe"], 1) if fr.get("roe") is not None else None, "%")],
+            ["ROA", _fmt(round(fr["roa"], 1) if fr.get("roa") is not None else None, "%")],
+            ["Operating Margin", _fmt(round(fr["operating_margin"], 1) if fr.get("operating_margin") is not None else None, "%")],
+            ["Net Margin", _fmt(round(fr["net_margin"], 1) if fr.get("net_margin") is not None else None, "%")],
             ["Debt/Equity", _fmt(round(fr["debt_to_equity"], 2) if fr.get("debt_to_equity") is not None else None)],
+            ["Current Ratio", _fmt(round(fr["current_ratio"], 2) if fr.get("current_ratio") is not None else None)],
             ["Free Cash Flow", fr.get("free_cash_flow", "N/A")],
             ["Sales CAGR", _fmt(round(fr["sales_growth_3y"] * 100, 1) if fr.get("sales_growth_3y") is not None else None, "%")],
             ["Profit CAGR", _fmt(round(fr["profit_growth_3y"] * 100, 1) if fr.get("profit_growth_3y") is not None else None, "%")],

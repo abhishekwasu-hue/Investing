@@ -17,6 +17,14 @@ state = render_global_sidebar()
 sector, timeframe, mapping_df = state["sector"], state["timeframe"], state["mapping_df"]
 active_broker = state["active_broker"]
 
+if timeframe.startswith("75-Minute"):
+    str_app.warning(
+        "⚠️ Sector Screener सध्या 75-Minute (इंट्रा-डे) सपोर्ट करत नाही — एका sector मधल्या "
+        "सगळ्या tickers साठी intraday डेटा आणणं खूप जास्त API calls लागतील. कृपया sidebar "
+        "मधून Daily/Weekly/Monthly पैकी एक निवडा."
+    )
+    str_app.stop()
+
 if not subscription.check_and_increment(username, "sector_screener"):
     str_app.error(
         f"⚠️ आजची Free-tier मर्यादा ({subscription.FREE_LIMITS['sector_screener']} screener runs/दिवस) संपली. "

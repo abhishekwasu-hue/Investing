@@ -6,7 +6,7 @@ from datetime import datetime
 import investment_technical as tech
 import investment_fundamental as fund
 import data_provider
-from app_state import render_global_sidebar, render_disclaimer_banner, DB_FOLDER
+from app_state import render_global_sidebar, render_disclaimer_banner, DB_FOLDER, ensure_index_data_path
 import os
 from auth import render_auth_gate
 import subscription
@@ -61,12 +61,13 @@ else:
 # ==============================================================================
 # 🧠 डेटा लोड + विश्लेषण (broker-agnostic, आपोआप free-data fallback)
 # ==============================================================================
-index_path = os.path.join(DB_FOLDER, "RELIANCE.NS_5year.csv")
+index_path = ensure_index_data_path()
 
 try:
     to_date = datetime.now().date()
     from_date = to_date.replace(year=to_date.year - 5)
-    df_raw = data_provider.get_ohlc_data(selected_ticker, from_date, to_date, active_broker=active_broker)
+    with str_app.spinner(f"{selected_ticker} साठी डेटा तयार करत आहे (पहिल्यांदाच थोडा वेळ लागू शकतो)..."):
+        df_raw = data_provider.get_ohlc_data(selected_ticker, from_date, to_date, active_broker=active_broker)
 except FileNotFoundError as e:
     str_app.error(f"❌ {e}")
     str_app.stop()

@@ -37,7 +37,7 @@ badge = "⭐ PRO" if tier == "PRO" else "🆓 Free"
 str_app.sidebar.markdown(f"Plan: **{badge}**")
 if tier == "FREE":
     str_app.sidebar.caption(f"PDF reports आज: {subscription.usage_today(username, 'pdf_report')}/{subscription.FREE_LIMITS['pdf_report']}")
-    str_app.sidebar.page_link("pages/5_💳_Upgrade_to_Pro.py", label="⭐ Upgrade to Pro")
+    str_app.sidebar.caption("⭐ Unlimited साठी वरच्या page-list मधून 'Upgrade to Pro' उघडा.")
 authenticator.logout(location="sidebar")
 str_app.sidebar.markdown("---")
 

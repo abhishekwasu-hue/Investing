@@ -2,34 +2,48 @@
 
 NIFTY/NSE micro-sector स्टॉक स्क्रीनर आणि टेक्निकल-रिपोर्टिंग टर्मिनल, Streamlit वर बनवलेला.
 
-## ⚠️ Important — before going live
+## ✅ Current status
 
-Some modules currently return **hardcoded / random mock data** instead of real values,
-and the app's core buy/sell signal depends on this data:
+Real data throughout: NSE OHLC + Delivery% (`jugaad-data`, auto-fetched
+on-demand), fundamentals + quarterly earnings (Yahoo Finance), macro
+(crude/DXY live, FPI manual-CSV), and news+sentiment (RSS feeds,
+keyword-based). Full multi-page dashboard, PDF research reports, login +
+Free/Pro subscription with Razorpay checkout.
 
-| File | Issue |
-|---|---|
-| `investment_database.py` | `No_of_Trades` & `Delivery_Pct` are `np.random.*` — not real NSE data |
-| `investment_terminal.py` | Quarterly earnings table is static HTML, same for every ticker |
-| `investment_fundamental.py` | PE / ROE / Debt-to-Equity are fixed `mock_` values for every ticker |
-| `investment_macro.py` | NSDL FPI flows & commodity prices are hardcoded, not scraped |
-
-**Do not use this for real trading decisions until these are replaced with real data sources**
-(e.g. actual NSE bhavcopy/delivery data, real quarterly results from an API, live FPI data from NSDL).
+**Still not SEBI-registered investment advice** — the app deliberately uses
+descriptive ("data-pattern observation") language rather than buy/sell
+recommendations, and every report/page carries a disclaimer. See the
+`## Login, Subscription & Payment Setup` section below before a public launch.
 
 ## Project structure
 
 ```
 .
-├── investment_terminal.py       # Streamlit UI / entrypoint
+├── investment_terminal.py       # Entrypoint (Overview page) — login, subscription status, PDF button
+├── app_state.py                 # Shared sidebar/session-state across all pages
+├── data_provider.py             # Broker-agnostic facade (live broker OR free NSE data)
+├── chart_builder.py             # Candlestick+RSI chart (shared by dashboard & PDF)
+├── report_pdf_generator.py      # PDF research report engine (reportlab)
+├── auth.py                      # Login/Register (streamlit-authenticator)
+├── subscription.py              # Free/Pro tiers + daily usage limits (SQLite)
+├── payments.py                  # Razorpay order + signature verification
 ├── investment_technical.py      # Technical analysis engine
 ├── investment_screener.py       # Price correction vs fall screener
-├── investment_fundamental.py    # Fundamental scoring (currently mock)
-├── investment_macro.py          # Macro/FPI narrative (currently mock)
-├── investment_database.py       # One-time/offline data sync script (yfinance)
+├── investment_fundamental.py    # Fundamentals + quarterly earnings (Yahoo Finance)
+├── investment_macro.py          # Crude/DXY (live) + FPI flows (manual CSV)
+├── investment_news.py           # RSS news + keyword sentiment
+├── investment_database.py       # NSE data sync (bulk + on-demand single-ticker)
 ├── investment_master_mapping.csv
 ├── requirements.txt
-└── investment_data_warehouse/   # generated CSVs — NOT committed to git
+├── pages/
+│   ├── 1_📈_Technical_Chart.py
+│   ├── 2_📊_Fundamentals.py
+│   ├── 3_🔍_Sector_Screener.py
+│   ├── 4_📰_Macro_News.py
+│   └── 5_💳_Upgrade_to_Pro.py
+├── broker_adapters/              # Upstox / Zerodha / Angel One / Free-data — pluggable
+├── fonts/                        # Noto Sans Devanagari (Marathi text in PDFs)
+└── investment_data_warehouse/    # auto-generated CSVs — NOT committed to git
 ```
 
 ## 1. Run locally
@@ -37,8 +51,9 @@ and the app's core buy/sell signal depends on this data:
 ```bash
 pip install -r requirements.txt
 
-# One-time: build the local data warehouse (takes a while, hits yfinance)
-python investment_database.py
+# Data sync is now AUTOMATIC (on-demand, per ticker) — you don't need to run
+# investment_database.py separately. It still exists if you want to
+# pre-warm the entire universe in one go: python investment_database.py
 
 # Launch the app
 streamlit run investment_terminal.py
@@ -64,20 +79,16 @@ hundreds of per-ticker CSVs, and Streamlit Cloud rebuilds the environment fresh 
 2. **New app** → select your repo, branch `main`, main file path `investment_terminal.py`.
 3. Deploy.
 
-### ⚠️ Data warehouse problem on Cloud
-`investment_terminal.py` reads CSVs from `investment_data_warehouse/`, but that folder
-is not in git, so it won't exist on Streamlit Cloud. You need one of these:
-
-- **Option A (simplest):** Add a one-time startup check in `investment_terminal.py` that
-  calls `sync_universal_database()` from `investment_database.py` if the warehouse folder
-  is empty — but syncing ~100 tickers via yfinance on every cold start will be slow and
-  may hit rate limits.
-- **Option B (recommended):** Run `investment_database.py` locally/on a scheduled GitHub
-  Action, then upload the resulting CSVs to a cloud bucket (S3 / GCS / a private GitHub
-  release) and have the app download only the CSVs it needs, on demand, cached.
-- **Option C:** Use `st.cache_data` + fetch data live from `yfinance` directly inside the
-  app instead of pre-building a local warehouse at all — simplest for a small ~100-ticker
-  universe.
+### Data warehouse on Cloud — SOLVED (on-demand auto-fetch)
+`data_provider.py` / `broker_adapters/free_data_adapter.py` now fetch a
+ticker's NSE data **on-demand, automatically**, the first time it's opened —
+no separate script needs to run, on Cloud or locally. When a ticker is
+requested and its CSV isn't in `investment_data_warehouse/` yet, the app
+fetches it live from NSE right then (a few seconds), caches it to disk, and
+every later visit for that ticker is instant. The Sector Screener does the
+same per-ticker while it scans. `investment_database.py`'s bulk
+`sync_universal_database()` still exists if you ever want to pre-warm the
+whole universe in one go, but it's optional now.
 
 ### Secrets
 If you later add a broker API key, DB credentials, etc., put them in Streamlit Cloud's

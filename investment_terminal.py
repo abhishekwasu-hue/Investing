@@ -62,15 +62,32 @@ else:
 # 🧠 डेटा लोड + विश्लेषण (broker-agnostic, आपोआप free-data fallback)
 # ==============================================================================
 index_path = ensure_index_data_path()
+is_intraday_tf = timeframe.startswith("75-Minute")
 
-try:
-    to_date = datetime.now().date()
-    from_date = to_date.replace(year=to_date.year - 5)
-    with str_app.spinner(f"{selected_ticker} साठी डेटा तयार करत आहे (पहिल्यांदाच थोडा वेळ लागू शकतो)..."):
-        df_raw = data_provider.get_ohlc_data(selected_ticker, from_date, to_date, active_broker=active_broker)
-except FileNotFoundError as e:
-    str_app.error(f"❌ {e}")
-    str_app.stop()
+if is_intraday_tf:
+    if active_broker is None or not active_broker.is_connected():
+        str_app.warning(
+            "⚠️ 75-Minute (इंट्रा-डे) साठी मिनिट-स्तरीय डेटा लागतो, जो फक्त live broker जोडलेला "
+            "असेल तरच (उदा. Upstox — sidebar मध्ये) मिळतो. NSE/Yahoo कडे फक्त daily डेटा असतो. "
+            "सध्या Daily/Weekly/Monthly निवडा, किंवा sidebar मधून broker जोडा."
+        )
+        str_app.stop()
+    with str_app.spinner(f"{selected_ticker} साठी intraday डेटा आणत आहे..."):
+        to_date = datetime.now().date()
+        from_date = to_date - pd.Timedelta(days=60)
+        df_raw = data_provider.get_intraday_ohlc_data(selected_ticker, from_date, to_date, active_broker=active_broker)
+    if df_raw is None or df_raw.empty:
+        str_app.error(f"❌ {active_broker.display_name()} कडून intraday डेटा मिळाला नाही.")
+        str_app.stop()
+else:
+    try:
+        to_date = datetime.now().date()
+        from_date = to_date.replace(year=to_date.year - 5)
+        with str_app.spinner(f"{selected_ticker} साठी डेटा तयार करत आहे (पहिल्यांदाच थोडा वेळ लागू शकतो)..."):
+            df_raw = data_provider.get_ohlc_data(selected_ticker, from_date, to_date, active_broker=active_broker)
+    except FileNotFoundError as e:
+        str_app.error(f"❌ {e}")
+        str_app.stop()
 
 df_raw["Date"] = pd.to_datetime(df_raw["Date"])
 analysis = tech.run_advanced_technical_analysis(df_raw, timeframe, index_path)

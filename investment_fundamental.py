@@ -51,11 +51,18 @@ def _get_row(series, *possible_names):
 
 
 def _compute_from_statements(stock: "yf.Ticker") -> dict:
-    """PE/ROE/Debt-Equity/Current Ratio raw financial statements मधून
-    manually calculate करतो — Yahoo च्या summary info पेक्षा जास्त
-    विश्वासार्ह (विशेषतः छोट्या भारतीय कंपन्यांसाठी)."""
-    out = {"roe": None, "debt_to_equity": None, "current_ratio": None,
-           "roa": None, "book_value_per_share": None}
+    """
+    PE/ROE/Debt-Equity/Current Ratio/ROCE/Working-Capital-Cycle raw
+    financial statements मधून manually calculate करतो — Yahoo च्या summary
+    info पेक्षा जास्त विश्वासार्ह (विशेषतः छोट्या भारतीय कंपन्यांसाठी).
+    Screener.in जे दाखवतं त्यातले प्रमुख ratios इथे replicate केले आहेत.
+    """
+    out = {
+        "roe": None, "debt_to_equity": None, "current_ratio": None,
+        "roa": None, "book_value_per_share": None, "roce": None,
+        "debtor_days": None, "inventory_days": None, "payable_days": None,
+        "cash_conversion_cycle": None,
+    }
     try:
         bs = _latest_col(stock.balance_sheet)
         inc = _latest_col(stock.income_stmt)
@@ -82,6 +89,33 @@ def _compute_from_statements(stock: "yf.Ticker") -> dict:
             out["roa"] = round((net_income / total_assets) * 100, 2)
         if equity is not None and shares_out not in (None, 0):
             out["book_value_per_share"] = round(equity / shares_out, 2)
+
+        # ---- ROCE (Return on Capital Employed) — Screener.in चा सर्वात
+        # आवडता profitability-quality metric. ROCE = EBIT / Capital Employed,
+        # जिथे Capital Employed = Total Assets - Current Liabilities ----
+        ebit = _get_row(inc, "EBIT", "Operating Income")
+        if ebit is not None and total_assets is not None and current_liabilities is not None:
+            capital_employed = total_assets - current_liabilities
+            if capital_employed > 0:
+                out["roce"] = round((ebit / capital_employed) * 100, 2)
+
+        # ---- Working Capital Cycle — Screener.in मध्ये "Debtor Days",
+        # "Inventory Days", "Days Payable" म्हणून दाखवतात ----
+        revenue = _get_row(inc, "Total Revenue")
+        cogs = _get_row(inc, "Cost Of Revenue", "Reconciled Cost Of Revenue")
+        receivables = _get_row(bs, "Receivables", "Accounts Receivable", "Gross Accounts Receivable")
+        inventory = _get_row(bs, "Inventory")
+        payables = _get_row(bs, "Payables", "Accounts Payable", "Payables And Accrued Expenses")
+
+        if receivables is not None and revenue not in (None, 0):
+            out["debtor_days"] = round((receivables / revenue) * 365, 1)
+        if inventory is not None and cogs not in (None, 0):
+            out["inventory_days"] = round((inventory / cogs) * 365, 1)
+        if payables is not None and cogs not in (None, 0):
+            out["payable_days"] = round((payables / cogs) * 365, 1)
+        if out["debtor_days"] is not None and out["inventory_days"] is not None and out["payable_days"] is not None:
+            out["cash_conversion_cycle"] = round(out["debtor_days"] + out["inventory_days"] - out["payable_days"], 1)
+
     except Exception as e:
         print(f"[FUNDAMENTAL] statement-based ratio calc failed: {e}")
     return out
@@ -150,11 +184,11 @@ def run_advanced_fundamental_analysis(ticker: str) -> dict:
     if profit_growth_3y is not None and profit_growth_3y >= 0.15: score += 10
     if debt_to_equity is not None and debt_to_equity <= 0.5: score += 12
     if roe is not None and roe >= 20.0: score += 10
-    if operating_margin is not None and operating_margin >= 15.0: score += 8
+    if computed["roce"] is not None and computed["roce"] >= 20.0: score += 8
+    if operating_margin is not None and operating_margin >= 15.0: score += 5
     if current_ratio is not None and current_ratio >= 1.0: score += 5
-    if free_cash_flow_status.startswith("POSITIVE"): score += 5
 
-    return {
+    result = {
         "fundamental_score": min(max(score, 0), 100),
         # Valuation
         "market_cap_cr": market_cap_cr,
@@ -166,6 +200,7 @@ def run_advanced_fundamental_analysis(ticker: str) -> dict:
         # Profitability
         "roe": roe,
         "roa": roa,
+        "roce": computed["roce"],
         "operating_margin": operating_margin,
         "net_margin": net_margin,
         "gross_margin": gross_margin,
@@ -173,6 +208,11 @@ def run_advanced_fundamental_analysis(ticker: str) -> dict:
         "debt_to_equity": debt_to_equity,
         "current_ratio": current_ratio,
         "book_value_per_share": computed["book_value_per_share"],
+        # Working-capital cycle (Screener.in स्टाईल)
+        "debtor_days": computed["debtor_days"],
+        "inventory_days": computed["inventory_days"],
+        "payable_days": computed["payable_days"],
+        "cash_conversion_cycle": computed["cash_conversion_cycle"],
         # Growth
         "sales_growth_3y": sales_growth_3y,
         "profit_growth_3y": profit_growth_3y,
@@ -182,6 +222,8 @@ def run_advanced_fundamental_analysis(ticker: str) -> dict:
         "operating_cf_cr": _to_cr(operating_cf_raw),
         "data_source": "Yahoo Finance (yfinance) — live + calculated from financial statements",
     }
+    result["pros"], result["cons"] = generate_pros_cons(result)
+    return result
 
 
 def _compute_cagr_growth(stock: "yf.Ticker"):
@@ -246,7 +288,103 @@ def get_quarterly_earnings_table(ticker: str, n_quarters: int = 6):
     return rows
 
 
-def get_peer_comparison(tickers: list, max_peers: int = 8) -> list:
+def generate_pros_cons(result: dict) -> tuple:
+    """
+    Screener.in च्या "Pros / Cons" सेक्शन सारखं — आधीच calculate केलेल्या
+    ratios वरून साधे, पारदर्शक rule-based निरीक्षणं. कुठलाही नवीन डेटा
+    आणत नाही, फक्त वरच्या numbers ना वाचनीय वाक्यांमध्ये मांडतं.
+    ⚠️ हे निरीक्षणं आहेत, शिफारशी नाहीत — भाषा मुद्दाम तटस्थ ठेवलीये.
+    """
+    pros, cons = [], []
+
+    de = result.get("debt_to_equity")
+    if de is not None:
+        if de <= 0.3:
+            pros.append(f"कंपनीवर कमी कर्ज आहे (Debt/Equity: {de})")
+        elif de >= 1.5:
+            cons.append(f"कंपनीवर तुलनेने जास्त कर्ज आहे (Debt/Equity: {de})")
+
+    roe = result.get("roe")
+    if roe is not None:
+        if roe >= 20:
+            pros.append(f"चांगला Return on Equity — ROE: {roe}%")
+        elif roe < 10:
+            cons.append(f"तुलनेने कमी Return on Equity — ROE: {roe}%")
+
+    roce = result.get("roce")
+    if roce is not None:
+        if roce >= 20:
+            pros.append(f"भांडवलावर चांगला परतावा — ROCE: {roce}%")
+        elif roce < 10:
+            cons.append(f"भांडवलावर तुलनेने कमी परतावा — ROCE: {roce}%")
+
+    sales_g = result.get("sales_growth_3y")
+    if sales_g is not None:
+        if sales_g >= 0.15:
+            pros.append(f"सातत्यपूर्ण विक्री वाढ — Sales CAGR: {sales_g*100:.1f}%")
+        elif sales_g < 0:
+            cons.append(f"विक्रीत घट झालेली दिसते — Sales CAGR: {sales_g*100:.1f}%")
+
+    profit_g = result.get("profit_growth_3y")
+    if profit_g is not None and profit_g < 0:
+        cons.append(f"नफ्यात घट झालेली दिसते — Profit CAGR: {profit_g*100:.1f}%")
+
+    ccc = result.get("cash_conversion_cycle")
+    if ccc is not None:
+        if ccc <= 30:
+            pros.append(f"कार्यक्षम Working Capital Cycle ({ccc} दिवस)")
+        elif ccc >= 90:
+            cons.append(f"Working Capital Cycle तुलनेने लांब आहे ({ccc} दिवस) — पैसे व्यवसायात जास्त काळ अडकतात")
+
+    if result.get("free_cash_flow") == "POSITIVE ✅":
+        pros.append("Free Cash Flow सकारात्मक आहे")
+    elif result.get("free_cash_flow") == "NEGATIVE ⚠️":
+        cons.append("Free Cash Flow सध्या नकारात्मक आहे")
+
+    cr = result.get("current_ratio")
+    if cr is not None and cr < 1.0:
+        cons.append(f"Current Ratio 1 पेक्षा कमी आहे ({cr}) — अल्पकालीन तरलतेवर लक्ष ठेवावं")
+
+    return pros, cons
+
+
+def get_multi_year_financials(ticker: str, years: int = 5) -> list:
+    """
+    Screener.in च्या 'Profit & Loss' टेबलसारखं — वार्षिक Sales, Net Profit,
+    Operating Margin % चा ट्रेंड (Yahoo सहसा ३-४ वर्षंच annual data देतो,
+    Screener.in इतकी १०+ वर्षं खोली मोफत स्रोतातून मिळत नाही — ही एक
+    प्रामाणिक मर्यादा आहे).
+    """
+    stock = yf.Ticker(ticker)
+    try:
+        inc = stock.income_stmt
+    except Exception as e:
+        print(f"[FUNDAMENTAL] annual financials fetch failed for {ticker}: {e}")
+        return []
+
+    if inc is None or inc.empty or "Total Revenue" not in inc.index:
+        return []
+
+    revenue = inc.loc["Total Revenue"]
+    net_income = inc.loc["Net Income"] if "Net Income" in inc.index else None
+    operating_income = inc.loc["Operating Income"] if "Operating Income" in inc.index else None
+
+    cols = list(inc.columns)[:years]
+    rows = []
+    for col in reversed(cols):
+        sales = revenue.get(col)
+        if pd.isna(sales):
+            continue
+        profit = net_income.get(col) if net_income is not None else None
+        op_income = operating_income.get(col) if operating_income is not None else None
+        opm = round(float(op_income) / float(sales) * 100, 1) if (op_income is not None and pd.notna(op_income) and sales) else None
+        rows.append({
+            "year": col.strftime("%Y") if hasattr(col, "strftime") else str(col),
+            "sales_cr": round(float(sales) / CR, 1),
+            "net_profit_cr": round(float(profit) / CR, 1) if (profit is not None and pd.notna(profit)) else None,
+            "opm_pct": opm,
+        })
+    return rows
     """
     दिलेल्या tickers साठी (सहसा same micro-sector मधले) थोडक्यात
     comparison टेबल — PE, ROE, Debt/Equity, Fundamental Score.

@@ -11,3 +11,5 @@ streamlit-authenticator
 bcrypt
 razorpay
 PyYAML
+anthropic
+requests

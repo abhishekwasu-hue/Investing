@@ -9,6 +9,8 @@ chart_builder.py (plotly + kaleido) वापरतो, कारण lightweight
 import json
 import pandas as pd
 
+from investment_technical import compute_support_resistance_levels
+
 
 def build_lightweight_chart_html(chart_df: pd.DataFrame, analysis: dict, ticker: str,
                                   timeframe: str, height: int = 520) -> str:
@@ -39,14 +41,17 @@ def build_lightweight_chart_html(chart_df: pd.DataFrame, analysis: dict, ticker:
             columns={"EMA_50": "value"}
         ).to_dict(orient="records")
 
-    # Swing highs/lows -> horizontal price lines
-    swing_highs = list(set(analysis.get("swing_highs", [])))[:15]
-    swing_lows = list(set(analysis.get("swing_lows", [])))[:15]
+    # ---- Support/Resistance — जवळपासचे swing points clustered करून,
+    # touch-count (probability) नुसार strength ठरवतो — chart वर तेच
+    # strength line-width/color/style ठरवतं ----
+    sr_levels = compute_support_resistance_levels(
+        analysis.get("swing_highs", []), analysis.get("swing_lows", []), tolerance_pct=1.5
+    )[:12]  # जास्त गोंधळ टाळण्यासाठी टॉप १२ पुरेत (आधीच touch-count नुसार sorted आहेत)
+
+    sr_levels_json = json.dumps(sr_levels)
 
     candles_json = json.dumps(candles)
     ema_json = json.dumps(ema_series)
-    swing_highs_json = json.dumps(swing_highs)
-    swing_lows_json = json.dumps(swing_lows)
 
     html = f"""
 <div id="tv_chart_container" style="width:100%; height:{height}px;"></div>
@@ -85,19 +90,25 @@ def build_lightweight_chart_html(chart_df: pd.DataFrame, analysis: dict, ticker:
         emaSeries.setData(emaData);
     }}
 
-    // Swing highs (red) / lows (green) — price lines
-    const swingHighs = {swing_highs_json};
-    const swingLows = {swing_lows_json};
-    swingHighs.forEach(function(price) {{
+    // ---- Support/Resistance — strength (touch_count) नुसार जाडी/रंग/style ----
+    // Strong (४+ touches) = जाड, solid, ठळक रंग | Moderate (२-३) = मध्यम, dashed |
+    // Weak (१) = बारीक, dotted, फिकट रंग — जितका जास्त probability तितकी रेषा जास्त ठळक
+    const srLevels = {sr_levels_json};
+    const STRENGTH_STYLE = {{
+        'Strong':   {{ width: 3, style: LightweightCharts.LineStyle.Solid,  resColor: '#ff3333', supColor: '#00e676' }},
+        'Moderate': {{ width: 2, style: LightweightCharts.LineStyle.Dashed, resColor: '#e53e3e', supColor: '#38a169' }},
+        'Weak':     {{ width: 1, style: LightweightCharts.LineStyle.Dotted, resColor: '#e53e3e88', supColor: '#38a16988' }},
+    }};
+    srLevels.forEach(function(level) {{
+        const st = STRENGTH_STYLE[level.strength] || STRENGTH_STYLE['Weak'];
+        const color = level.type === 'Resistance' ? st.resColor : st.supColor;
         candleSeries.createPriceLine({{
-            price: price, color: '#e53e3e', lineWidth: 1,
-            lineStyle: LightweightCharts.LineStyle.Dotted, axisLabelVisible: false,
-        }});
-    }});
-    swingLows.forEach(function(price) {{
-        candleSeries.createPriceLine({{
-            price: price, color: '#38a169', lineWidth: 1,
-            lineStyle: LightweightCharts.LineStyle.Dotted, axisLabelVisible: false,
+            price: level.price,
+            color: color,
+            lineWidth: st.width,
+            lineStyle: st.style,
+            axisLabelVisible: true,
+            title: level.type[0] + ' (' + level.touch_count + 'x)',
         }});
     }});
 

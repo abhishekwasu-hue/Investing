@@ -1,0 +1,65 @@
+name: Daily Sector Scan
+
+on:
+  schedule:
+    # रोज संध्याकाळी ४:३० PM IST (= 11:00 UTC) — NSE बंद झाल्यावर (३:३० PM)
+    - cron: "0 11 * * 1-5"   # सोम-शुक्र फक्त (weekend NSE बंद असतं)
+  workflow_dispatch:
+    inputs:
+      smoke_test:
+        description: "फक्त quick connectivity test (मोजके tickers, काहीही सेव्ह/commit होणार नाही)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write   # निकाल परत repo मध्ये commit करण्यासाठी लागतं
+
+concurrency:
+  group: daily-sector-scan
+  cancel-in-progress: false   # scheduled आणि manual run एकाच वेळी आले तर एक रांगेत थांबेल, एकमेकांवर race/overwrite होणार नाही
+
+jobs:
+  daily-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run daily scan agent (smoke test)
+        if: ${{ inputs.smoke_test == true }}
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          python daily_scan_agent.py --smoke-test
+
+      - name: Run daily scan agent (full)
+        if: ${{ inputs.smoke_test != true }}
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          EMAIL_SENDER: ${{ secrets.EMAIL_SENDER }}
+          EMAIL_APP_PASSWORD: ${{ secrets.EMAIL_APP_PASSWORD }}
+          EMAIL_RECIPIENT: ${{ secrets.EMAIL_RECIPIENT }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          SCAN_MAX_WORKERS: ${{ vars.SCAN_MAX_WORKERS || '4' }}
+        run: |
+          python daily_scan_agent.py
+
+      - name: Commit updated digest back to repo
+        if: ${{ inputs.smoke_test != true }}
+        run: |
+          git config user.name "daily-scan-bot"
+          git config user.email "actions@github.com"
+          git add daily_reports/
+          git diff --staged --quiet && echo "No changes to commit" || git commit -m "Daily sector digest — $(date +'%Y-%m-%d')"
+          git pull --rebase origin ${{ github.ref_name }} || true
+          git push

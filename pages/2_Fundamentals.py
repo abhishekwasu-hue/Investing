@@ -37,7 +37,32 @@ c2.markdown(
 
 str_app.markdown("---")
 
-# ---- Section 1: Valuation ----
+# ---- Pros & Cons (Screener.in चं सिग्नेचर फीचर) ----
+pros, cons = result.get("pros", []), result.get("cons", [])
+if pros or cons:
+    str_app.subheader("⚖️ Pros & Cons — निरीक्षणं (सल्ला नाही)")
+    pc1, pc2 = str_app.columns(2)
+    with pc1:
+        st_ = str_app.container(border=True)
+        st_.markdown("**✅ Pros**")
+        if pros:
+            for p in pros:
+                st_.markdown(f"- {p}")
+        else:
+            st_.caption("सध्याच्या आकड्यांनुसार ठळक pros आढळले नाहीत.")
+    with pc2:
+        st_ = str_app.container(border=True)
+        st_.markdown("**⚠️ Cons**")
+        if cons:
+            for c in cons:
+                st_.markdown(f"- {c}")
+        else:
+            st_.caption("सध्याच्या आकड्यांनुसार ठळक cons आढळले नाहीत.")
+    str_app.caption(
+        "⚠️ ही यादी वरच्या ratios वरून साध्या नियमांनी (rule-based) आपोआप तयार होते — "
+        "स्वतंत्र गुणात्मक विश्लेषण नाही, आणि गुंतवणूक शिफारस नाही."
+    )
+    str_app.markdown("---")
 str_app.subheader("💰 Valuation")
 v1, v2, v3, v4, v5 = str_app.columns(5)
 v1.metric("PE Ratio", _fmt(result["pe_ratio"], decimals=1))
@@ -48,12 +73,13 @@ v5.metric("Dividend Yield", _fmt(result["dividend_yield"], "%", 2))
 
 # ---- Section 2: Profitability ----
 str_app.subheader("📈 Profitability")
-p1, p2, p3, p4, p5 = str_app.columns(5)
+p1, p2, p3, p4, p5, p6 = str_app.columns(6)
 p1.metric("ROE", _fmt(result["roe"], "%", 1))
-p2.metric("ROA", _fmt(result["roa"], "%", 1))
-p3.metric("Operating Margin", _fmt(result["operating_margin"], "%", 1))
-p4.metric("Net Margin", _fmt(result["net_margin"], "%", 1))
-p5.metric("Gross Margin", _fmt(result["gross_margin"], "%", 1))
+p2.metric("ROCE", _fmt(result["roce"], "%", 1))
+p3.metric("ROA", _fmt(result["roa"], "%", 1))
+p4.metric("Operating Margin", _fmt(result["operating_margin"], "%", 1))
+p5.metric("Net Margin", _fmt(result["net_margin"], "%", 1))
+p6.metric("Gross Margin", _fmt(result["gross_margin"], "%", 1))
 
 # ---- Section 3: Financial Health ----
 str_app.subheader("🏦 Financial Health")
@@ -61,6 +87,15 @@ f1, f2, f3 = str_app.columns(3)
 f1.metric("Debt/Equity", _fmt(result["debt_to_equity"], decimals=2))
 f2.metric("Current Ratio", _fmt(result["current_ratio"], decimals=2))
 f3.metric("Book Value/Share", _fmt(result["book_value_per_share"], decimals=1))
+
+# ---- Section 3b: Working Capital Cycle (Screener.in स्टाईल) ----
+str_app.subheader("🔄 Working Capital Cycle")
+w1, w2, w3, w4 = str_app.columns(4)
+w1.metric("Debtor Days", _fmt(result["debtor_days"], " दिवस", 0))
+w2.metric("Inventory Days", _fmt(result["inventory_days"], " दिवस", 0))
+w3.metric("Payable Days", _fmt(result["payable_days"], " दिवस", 0))
+w4.metric("Cash Conversion Cycle", _fmt(result["cash_conversion_cycle"], " दिवस", 0))
+str_app.caption("Cash Conversion Cycle = Debtor Days + Inventory Days − Payable Days. कमी असणं (किंवा negative) सहसा चांगलं — पैसे व्यवसायात कमी काळ अडकतात.")
 
 # ---- Section 4: Growth ----
 str_app.subheader("🚀 Growth (Annual CAGR)")
@@ -77,6 +112,37 @@ cf2.metric("FCF (Rs. Cr)", _fmt(result["free_cash_flow_cr"], " Cr", 0) if result
 cf3.metric("Operating CF (Rs. Cr)", _fmt(result["operating_cf_cr"], " Cr", 0) if result["operating_cf_cr"] else "N/A")
 
 str_app.markdown("---")
+
+str_app.markdown("---")
+
+# ---- Multi-Year Annual P&L Trend (Screener.in च्या मुख्य टेबलसारखं) ----
+str_app.subheader(f"📅 वार्षिक Profit & Loss Trend — {ticker}")
+with str_app.spinner("वार्षिक financial statements आणत आहे..."):
+    yearly_rows = fund.get_multi_year_financials(ticker, years=5)
+
+if yearly_rows:
+    ydf = pd.DataFrame(yearly_rows)
+    yearly_fig = go.Figure()
+    yearly_fig.add_trace(go.Bar(x=ydf["year"], y=ydf["sales_cr"], name="Sales (Rs. Cr)", marker_color="#3182ce"))
+    yearly_fig.add_trace(go.Bar(x=ydf["year"], y=ydf["net_profit_cr"], name="Net Profit (Rs. Cr)", marker_color="#38a169"))
+    yearly_fig.update_layout(
+        barmode="group", height=320, template="plotly_dark",
+        margin=dict(l=10, r=10, t=20, b=10), paper_bgcolor="#0b0e14", plot_bgcolor="#0b0e14",
+        legend=dict(orientation="h", yanchor="bottom", y=1.02),
+    )
+    str_app.plotly_chart(yearly_fig, use_container_width=True)
+
+    yearly_display = ydf.rename(columns={
+        "year": "Year", "sales_cr": "Sales (Rs. Cr)", "net_profit_cr": "Net Profit (Rs. Cr)", "opm_pct": "OPM %",
+    })
+    str_app.dataframe(yearly_display, use_container_width=True, hide_index=True)
+    str_app.caption(
+        f"Yahoo Finance कडून उपलब्ध शेवटची {len(yearly_rows)} वर्षं. "
+        "Screener.in सारख्या स्रोतांकडे १०+ वर्षांचा इतिहास असतो — तो मोफत API मधून मिळत नाही, "
+        "ही एक प्रामाणिक मर्यादा आहे."
+    )
+else:
+    str_app.warning("⚠️ वार्षिक financial data सध्या उपलब्ध नाही.")
 
 # ---- Quarterly trend — टेबल + चार्ट दोन्ही ----
 str_app.subheader(f"📈 तिमाही Sales & Net Profit — {ticker}")
@@ -133,8 +199,11 @@ else:
 
 str_app.markdown(
     "<p style='font-size:11px; color:#a0aec0; margin-top:20px;'>⚠️ हे आकडे केवळ माहितीसाठी आहेत, "
-    "गुंतवणूक सल्ला नाहीत. काही आकडे थेट Yahoo Finance वरून, तर काही (ROE/Debt-Equity/Current Ratio "
-    "इ.) कंपनीच्या ताज्या financial statements मधून calculate केलेले आहेत — तरीही चुकीचे/जुने असू शकतात, "
-    "कंपनीच्या अधिकृत फायलिंगशी पडताळून घ्या.</p>",
+    "गुंतवणूक सल्ला नाहीत. काही आकडे थेट Yahoo Finance वरून, तर काही (ROE/ROCE/Debt-Equity/Current Ratio/"
+    "Working Capital Cycle इ.) कंपनीच्या ताज्या financial statements मधून calculate केलेले आहेत — तरीही "
+    "चुकीचे/जुने असू शकतात, कंपनीच्या अधिकृत फायलिंगशी पडताळून घ्या.<br><br>"
+    "<b>Screener.in शी तुलनेत एक स्पष्ट मर्यादा:</b> Shareholding Pattern (Promoter/FII/DII/Public होल्डिंग "
+    "ट्रेंड) इथे नाही — ही NSE/BSE corporate filings मधून येणारी माहिती आहे, Yahoo Finance च्या मोफत API "
+    "मध्ये उपलब्ध नाही. हवी असल्यास प्रत्यक्ष NSE वेबसाइट किंवा Screener.in वर बघावी लागेल.</p>",
     unsafe_allow_html=True,
 )

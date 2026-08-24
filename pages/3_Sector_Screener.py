@@ -53,11 +53,21 @@ for i, ticker in enumerate(sector_tickers):
         df_raw["Date"] = pd.to_datetime(df_raw["Date"])
         analysis = tech.run_advanced_technical_analysis(df_raw, timeframe, index_path)
         if analysis["status"] == "SUCCESS":
+            breakout = analysis.get("breakout") or {}
+            breakout_label = "🚀 Confirmed" if breakout.get("is_breakout") else ("⚠️ Price-only" if breakout.get("is_price_breakout_only") else "―")
+            supertrend = analysis.get("supertrend") or {}
+            if supertrend.get("flipped"):
+                st_label = "📈 Bullish Flip" if supertrend.get("direction") == "BULLISH" else "📉 Bearish Flip"
+            else:
+                st_label = f"― ({supertrend.get('current_trend', 'N/A')})" if supertrend.get("current_trend") else "―"
             rows.append({
                 "Ticker": ticker,
                 "Quant Score": analysis["score"],
                 "Regime (Pattern)": analysis["regime"].replace("_", " "),
                 "Wyckoff Phase": analysis["wyckoff_phase"].split(" (")[0],
+                "Price+Volume Breakout": breakout_label,
+                "Volume Ratio": breakout.get("volume_ratio"),
+                "Supertrend": st_label,
                 "15D Delivery %": round(analysis["delivery_15d"], 1),
                 "Market Gate": analysis["market_gate"].replace("_", " "),
             })
@@ -75,6 +85,19 @@ if not rows:
     str_app.stop()
 
 result_df = pd.DataFrame(rows).sort_values("Quant Score", ascending=False).reset_index(drop=True)
+
+# ---- Sector-wide Breakout Breadth (किती % स्टॉक्समध्ये confirmed breakout) ----
+total = len(result_df)
+confirmed_count = (result_df["Price+Volume Breakout"] == "🚀 Confirmed").sum()
+breakout_pct = round(confirmed_count / total * 100, 1) if total else 0.0
+
+bc1, bc2 = str_app.columns(2)
+bc1.metric(f"🚀 {sector} मध्ये Confirmed Breakout", f"{confirmed_count}/{total} tickers", f"{breakout_pct}%")
+bc2.caption(
+    "Confirmed = किंमत मागच्या १० बार्सच्या उच्चांकाच्या वर बंद झाली **आणि** volume सरासरीच्या "
+    "किमान १.५ पट होता (institutional सहभागाचा संकेत). Price-only = फक्त किंमत तुटली, volume ने साथ दिली नाही — कमकुवत मानलं जातं."
+)
+str_app.markdown("---")
 
 str_app.dataframe(
     result_df,

@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-08-24T12:00:00.818033",
-  "generated_date": "2026-08-24",
+  "generated_at": "2026-09-24T15:46:48.257170",
+  "generated_date": "2026-09-24",
   "ai_commentary": "⚠️ ANTHROPIC_API_KEY सेट नाही — AI समालोचन तयार करता आलं नाही (फक्त खालचा quant डेटा उपलब्ध).",
   "sectors": [
     {
@@ -10,7 +10,7 @@
       "reversal_pct": 100.0,
       "good_regime_pct": 100.0,
       "breakout_pct": 0.0,
-      "avg_quant_score": 68.1,
+      "avg_quant_score": 70.0,
       "top_tickers": [
         {
           "ticker": "TCS.NS",
@@ -46,6 +46,17 @@
           "supertrend_direction": null
         },
         {
+          "ticker": "PERSISTENT.NS",
+          "score": 75,
+          "regime": "STABLE_ACCUMULATION",
+          "wyckoff_phase": "PHASE_C (Spring Accumulation Breakout) 🚀",
+          "delivery_15d": 54.0,
+          "is_breakout": false,
+          "volume_ratio": 1.16,
+          "supertrend_flipped": false,
+          "supertrend_direction": null
+        },
+        {
           "ticker": "KPITTECH.NS",
           "score": 65,
           "regime": "STABLE_ACCUMULATION",
@@ -55,22 +66,11 @@
           "volume_ratio": 0.25,
           "supertrend_flipped": false,
           "supertrend_direction": null
-        },
-        {
-          "ticker": "INFY.NS",
-          "score": 60,
-          "regime": "STABLE_ACCUMULATION",
-          "wyckoff_phase": "PHASE_C (Spring Accumulation Breakout) 🚀",
-          "delivery_15d": 63.7,
-          "is_breakout": false,
-          "volume_ratio": 0.64,
-          "supertrend_flipped": false,
-          "supertrend_direction": null
         }
       ],
-      "score_change": null,
-      "reversal_pct_change": null,
-      "trend": "NEW"
+      "score_change": 1.9,
+      "reversal_pct_change": 0.0,
+      "trend": "FLAT"
     },
     {
       "sector": "Defense_Sector",
@@ -136,9 +136,9 @@
           "supertrend_direction": null
         }
       ],
-      "score_change": null,
-      "reversal_pct_change": null,
-      "trend": "NEW"
+      "score_change": 0.0,
+      "reversal_pct_change": 0.0,
+      "trend": "FLAT"
     },
     {
       "sector": "Automobile_EV",
@@ -204,9 +204,9 @@
           "supertrend_direction": null
         }
       ],
-      "score_change": null,
-      "reversal_pct_change": null,
-      "trend": "NEW"
+      "score_change": 0.0,
+      "reversal_pct_change": 0.0,
+      "trend": "FLAT"
     },
     {
       "sector": "Banking_Giants",
@@ -214,7 +214,7 @@
       "reversal_pct": 27.3,
       "good_regime_pct": 100.0,
       "breakout_pct": 0.0,
-      "avg_quant_score": 73.6,
+      "avg_quant_score": 72.3,
       "top_tickers": [
         {
           "ticker": "KOTAKBANK.NS",
@@ -224,17 +224,6 @@
           "delivery_15d": 66.0,
           "is_breakout": false,
           "volume_ratio": 0.97,
-          "supertrend_flipped": false,
-          "supertrend_direction": null
-        },
-        {
-          "ticker": "INDUSINDBK.NS",
-          "score": 90,
-          "regime": "HEALTHY_PRICE_CORRECTION",
-          "wyckoff_phase": "PHASE_C (Spring Accumulation Breakout) 🚀",
-          "delivery_15d": 65.1,
-          "is_breakout": false,
-          "volume_ratio": 0.96,
           "supertrend_flipped": false,
           "supertrend_direction": null
         },
@@ -270,11 +259,22 @@
           "volume_ratio": 0.46,
           "supertrend_flipped": false,
           "supertrend_direction": null
+        },
+        {
+          "ticker": "INDUSINDBK.NS",
+          "score": 75,
+          "regime": "HEALTHY_PRICE_CORRECTION",
+          "wyckoff_phase": "PHASE_C (Spring Accumulation Breakout) 🚀",
+          "delivery_15d": 65.1,
+          "is_breakout": false,
+          "volume_ratio": 0.96,
+          "supertrend_flipped": false,
+          "supertrend_direction": null
         }
       ],
-      "score_change": null,
-      "reversal_pct_change": null,
-      "trend": "NEW"
+      "score_change": 0.0,
+      "reversal_pct_change": 0.0,
+      "trend": "FLAT"
     },
     {
       "sector": "Infrastructure_CapG",
@@ -340,9 +340,9 @@
           "supertrend_direction": null
         }
       ],
-      "score_change": null,
-      "reversal_pct_change": null,
-      "trend": "NEW"
+      "score_change": 0.0,
+      "reversal_pct_change": 0.0,
+      "trend": "FLAT"
     },
     {
       "sector": "Energy_Macro",
@@ -408,9 +408,9 @@
           "supertrend_direction": null
         }
       ],
-      "score_change": null,
-      "reversal_pct_change": null,
-      "trend": "NEW"
+      "score_change": 0.0,
+      "reversal_pct_change": 0.0,
+      "trend": "FLAT"
     },
     {
       "sector": "Green_Energy_Power",
@@ -476,26 +476,26 @@
           "supertrend_direction": null
         }
       ],
-      "score_change": null,
-      "reversal_pct_change": null,
-      "trend": "NEW"
+      "score_change": 0.0,
+      "reversal_pct_change": 0.0,
+      "trend": "FLAT"
     },
     {
       "sector": "Alcoholic_Beverages",
-      "total_tickers_scanned": 4,
-      "reversal_pct": 25.0,
-      "good_regime_pct": 75.0,
+      "total_tickers_scanned": 5,
+      "reversal_pct": 20.0,
+      "good_regime_pct": 80.0,
       "breakout_pct": 0.0,
-      "avg_quant_score": 55.0,
+      "avg_quant_score": 56.0,
       "top_tickers": [
         {
-          "ticker": "TI.NS",
+          "ticker": "MCDOWELL-N.NS",
           "score": 75,
           "regime": "STABLE_ACCUMULATION",
           "wyckoff_phase": "PHASE_B (Consolidation Zone)",
-          "delivery_15d": 62.1,
+          "delivery_15d": 58.8,
           "is_breakout": false,
-          "volume_ratio": 2.18,
+          "volume_ratio": 0.43,
           "supertrend_flipped": false,
           "supertrend_direction": null
         },
@@ -522,6 +522,17 @@
           "supertrend_direction": null
         },
         {
+          "ticker": "TI.NS",
+          "score": 60,
+          "regime": "STABLE_ACCUMULATION",
+          "wyckoff_phase": "PHASE_B (Consolidation Zone)",
+          "delivery_15d": 62.1,
+          "is_breakout": false,
+          "volume_ratio": 2.18,
+          "supertrend_flipped": false,
+          "supertrend_direction": null
+        },
+        {
           "ticker": "GLOBUSSPR.NS",
           "score": 20,
           "regime": "STRUCTURAL_PRICE_FALL",
@@ -533,9 +544,9 @@
           "supertrend_direction": null
         }
       ],
-      "score_change": null,
-      "reversal_pct_change": null,
-      "trend": "NEW"
+      "score_change": 4.8,
+      "reversal_pct_change": -5.0,
+      "trend": "UP"
     },
     {
       "sector": "Railway_Infra",
@@ -601,9 +612,9 @@
           "supertrend_direction": null
         }
       ],
-      "score_change": null,
-      "reversal_pct_change": null,
-      "trend": "NEW"
+      "score_change": 0.0,
+      "reversal_pct_change": 0.0,
+      "trend": "FLAT"
     },
     {
       "sector": "Sugar_Sector",
@@ -669,9 +680,9 @@
           "supertrend_direction": null
         }
       ],
-      "score_change": null,
-      "reversal_pct_change": null,
-      "trend": "NEW"
+      "score_change": 0.0,
+      "reversal_pct_change": 0.0,
+      "trend": "FLAT"
     },
     {
       "sector": "Metals_Mining",
@@ -737,9 +748,9 @@
           "supertrend_direction": null
         }
       ],
-      "score_change": null,
-      "reversal_pct_change": null,
-      "trend": "NEW"
+      "score_change": 0.0,
+      "reversal_pct_change": 0.0,
+      "trend": "FLAT"
     }
   ]
 }

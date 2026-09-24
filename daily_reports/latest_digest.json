@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-09-23T15:23:32.061936",
-  "generated_date": "2026-09-23",
+  "generated_at": "2026-09-24T15:46:48.257170",
+  "generated_date": "2026-09-24",
   "ai_commentary": "⚠️ ANTHROPIC_API_KEY सेट नाही — AI समालोचन तयार करता आलं नाही (फक्त खालचा quant डेटा उपलब्ध).",
   "sectors": [
     {
@@ -10,7 +10,7 @@
       "reversal_pct": 100.0,
       "good_regime_pct": 100.0,
       "breakout_pct": 0.0,
-      "avg_quant_score": 68.1,
+      "avg_quant_score": 70.0,
       "top_tickers": [
         {
           "ticker": "TCS.NS",
@@ -46,6 +46,17 @@
           "supertrend_direction": null
         },
         {
+          "ticker": "PERSISTENT.NS",
+          "score": 75,
+          "regime": "STABLE_ACCUMULATION",
+          "wyckoff_phase": "PHASE_C (Spring Accumulation Breakout) 🚀",
+          "delivery_15d": 54.0,
+          "is_breakout": false,
+          "volume_ratio": 1.16,
+          "supertrend_flipped": false,
+          "supertrend_direction": null
+        },
+        {
           "ticker": "KPITTECH.NS",
           "score": 65,
           "regime": "STABLE_ACCUMULATION",
@@ -55,20 +66,9 @@
           "volume_ratio": 0.25,
           "supertrend_flipped": false,
           "supertrend_direction": null
-        },
-        {
-          "ticker": "INFY.NS",
-          "score": 60,
-          "regime": "STABLE_ACCUMULATION",
-          "wyckoff_phase": "PHASE_C (Spring Accumulation Breakout) 🚀",
-          "delivery_15d": 63.7,
-          "is_breakout": false,
-          "volume_ratio": 0.64,
-          "supertrend_flipped": false,
-          "supertrend_direction": null
         }
       ],
-      "score_change": 0.0,
+      "score_change": 1.9,
       "reversal_pct_change": 0.0,
       "trend": "FLAT"
     },
@@ -482,12 +482,23 @@
     },
     {
       "sector": "Alcoholic_Beverages",
-      "total_tickers_scanned": 4,
-      "reversal_pct": 25.0,
-      "good_regime_pct": 75.0,
+      "total_tickers_scanned": 5,
+      "reversal_pct": 20.0,
+      "good_regime_pct": 80.0,
       "breakout_pct": 0.0,
-      "avg_quant_score": 51.2,
+      "avg_quant_score": 56.0,
       "top_tickers": [
+        {
+          "ticker": "MCDOWELL-N.NS",
+          "score": 75,
+          "regime": "STABLE_ACCUMULATION",
+          "wyckoff_phase": "PHASE_B (Consolidation Zone)",
+          "delivery_15d": 58.8,
+          "is_breakout": false,
+          "volume_ratio": 0.43,
+          "supertrend_flipped": false,
+          "supertrend_direction": null
+        },
         {
           "ticker": "SULA.NS",
           "score": 65,
@@ -533,9 +544,9 @@
           "supertrend_direction": null
         }
       ],
-      "score_change": 0.0,
-      "reversal_pct_change": 0.0,
-      "trend": "FLAT"
+      "score_change": 4.8,
+      "reversal_pct_change": -5.0,
+      "trend": "UP"
     },
     {
       "sector": "Railway_Infra",

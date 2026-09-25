@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-09-24T15:46:48.257170",
-  "generated_date": "2026-09-24",
+  "generated_at": "2026-09-25T15:47:08.029083",
+  "generated_date": "2026-09-25",
   "ai_commentary": "⚠️ ANTHROPIC_API_KEY सेट नाही — AI समालोचन तयार करता आलं नाही (फक्त खालचा quant डेटा उपलब्ध).",
   "sectors": [
     {
@@ -68,7 +68,7 @@
           "supertrend_direction": null
         }
       ],
-      "score_change": 1.9,
+      "score_change": 0.0,
       "reversal_pct_change": 0.0,
       "trend": "FLAT"
     },
@@ -482,23 +482,12 @@
     },
     {
       "sector": "Alcoholic_Beverages",
-      "total_tickers_scanned": 5,
-      "reversal_pct": 20.0,
-      "good_regime_pct": 80.0,
+      "total_tickers_scanned": 4,
+      "reversal_pct": 25.0,
+      "good_regime_pct": 75.0,
       "breakout_pct": 0.0,
-      "avg_quant_score": 56.0,
+      "avg_quant_score": 51.2,
       "top_tickers": [
-        {
-          "ticker": "MCDOWELL-N.NS",
-          "score": 75,
-          "regime": "STABLE_ACCUMULATION",
-          "wyckoff_phase": "PHASE_B (Consolidation Zone)",
-          "delivery_15d": 58.8,
-          "is_breakout": false,
-          "volume_ratio": 0.43,
-          "supertrend_flipped": false,
-          "supertrend_direction": null
-        },
         {
           "ticker": "SULA.NS",
           "score": 65,
@@ -544,9 +533,9 @@
           "supertrend_direction": null
         }
       ],
-      "score_change": 4.8,
-      "reversal_pct_change": -5.0,
-      "trend": "UP"
+      "score_change": -4.8,
+      "reversal_pct_change": 5.0,
+      "trend": "DOWN"
     },
     {
       "sector": "Railway_Infra",

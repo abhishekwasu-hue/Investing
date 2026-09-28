@@ -1,16 +1,16 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-08-28T21:50:47.529174",
-  "generated_date": "2026-08-28",
+  "generated_at": "2026-09-28T18:33:57.024296",
+  "generated_date": "2026-09-28",
   "ai_commentary": "⚠️ ANTHROPIC_API_KEY सेट नाही — AI समालोचन तयार करता आलं नाही (फक्त खालचा quant डेटा उपलब्ध).",
   "sectors": [
     {
       "sector": "IT_Giants",
-      "total_tickers_scanned": 8,
-      "reversal_pct": 100.0,
+      "total_tickers_scanned": 9,
+      "reversal_pct": 88.9,
       "good_regime_pct": 100.0,
       "breakout_pct": 0.0,
-      "avg_quant_score": 68.1,
+      "avg_quant_score": 69.4,
       "top_tickers": [
         {
           "ticker": "TCS.NS",
@@ -46,30 +46,30 @@
           "supertrend_direction": null
         },
         {
-          "ticker": "KPITTECH.NS",
-          "score": 65,
+          "ticker": "PERSISTENT.NS",
+          "score": 75,
           "regime": "STABLE_ACCUMULATION",
           "wyckoff_phase": "PHASE_C (Spring Accumulation Breakout) 🚀",
-          "delivery_15d": 60.8,
+          "delivery_15d": 54.0,
           "is_breakout": false,
-          "volume_ratio": 0.25,
+          "volume_ratio": 1.16,
           "supertrend_flipped": false,
           "supertrend_direction": null
         },
         {
-          "ticker": "INFY.NS",
-          "score": 60,
+          "ticker": "LTIM.NS",
+          "score": 65,
           "regime": "STABLE_ACCUMULATION",
-          "wyckoff_phase": "PHASE_C (Spring Accumulation Breakout) 🚀",
-          "delivery_15d": 63.7,
+          "wyckoff_phase": "PHASE_B (Consolidation Zone)",
+          "delivery_15d": 37.9,
           "is_breakout": false,
-          "volume_ratio": 0.64,
+          "volume_ratio": 0.97,
           "supertrend_flipped": false,
           "supertrend_direction": null
         }
       ],
-      "score_change": 0.0,
-      "reversal_pct_change": 0.0,
+      "score_change": -0.6,
+      "reversal_pct_change": -11.1,
       "trend": "FLAT"
     },
     {
@@ -142,11 +142,11 @@
     },
     {
       "sector": "Automobile_EV",
-      "total_tickers_scanned": 9,
-      "reversal_pct": 33.3,
+      "total_tickers_scanned": 10,
+      "reversal_pct": 30.0,
       "good_regime_pct": 100.0,
       "breakout_pct": 0.0,
-      "avg_quant_score": 75.0,
+      "avg_quant_score": 74.0,
       "top_tickers": [
         {
           "ticker": "MARUTI.NS",
@@ -204,8 +204,8 @@
           "supertrend_direction": null
         }
       ],
-      "score_change": 0.0,
-      "reversal_pct_change": 0.0,
+      "score_change": -1.0,
+      "reversal_pct_change": -3.3,
       "trend": "FLAT"
     },
     {
@@ -272,7 +272,7 @@
           "supertrend_direction": null
         }
       ],
-      "score_change": -1.3,
+      "score_change": 0.0,
       "reversal_pct_change": 0.0,
       "trend": "FLAT"
     },
@@ -414,11 +414,11 @@
     },
     {
       "sector": "Green_Energy_Power",
-      "total_tickers_scanned": 9,
-      "reversal_pct": 55.6,
-      "good_regime_pct": 55.6,
+      "total_tickers_scanned": 10,
+      "reversal_pct": 50.0,
+      "good_regime_pct": 60.0,
       "breakout_pct": 0.0,
-      "avg_quant_score": 50.0,
+      "avg_quant_score": 52.5,
       "top_tickers": [
         {
           "ticker": "TATAPOWER.NS",
@@ -443,6 +443,17 @@
           "supertrend_direction": null
         },
         {
+          "ticker": "ADANITRANS.NS",
+          "score": 75,
+          "regime": "STABLE_ACCUMULATION",
+          "wyckoff_phase": "PHASE_B (Consolidation Zone)",
+          "delivery_15d": 48.2,
+          "is_breakout": false,
+          "volume_ratio": 0.86,
+          "supertrend_flipped": false,
+          "supertrend_direction": null
+        },
+        {
           "ticker": "NHPC.NS",
           "score": 75,
           "regime": "STABLE_ACCUMULATION",
@@ -463,31 +474,31 @@
           "volume_ratio": 0.67,
           "supertrend_flipped": false,
           "supertrend_direction": null
-        },
-        {
-          "ticker": "JSWENERGY.NS",
-          "score": 50,
-          "regime": "STABLE_ACCUMULATION",
-          "wyckoff_phase": "PHASE_B (Consolidation Zone)",
-          "delivery_15d": 61.6,
-          "is_breakout": false,
-          "volume_ratio": 0.72,
-          "supertrend_flipped": false,
-          "supertrend_direction": null
         }
       ],
-      "score_change": 0.0,
-      "reversal_pct_change": 0.0,
-      "trend": "FLAT"
+      "score_change": 2.5,
+      "reversal_pct_change": -5.6,
+      "trend": "UP"
     },
     {
       "sector": "Alcoholic_Beverages",
-      "total_tickers_scanned": 4,
-      "reversal_pct": 25.0,
-      "good_regime_pct": 75.0,
+      "total_tickers_scanned": 5,
+      "reversal_pct": 20.0,
+      "good_regime_pct": 80.0,
       "breakout_pct": 0.0,
-      "avg_quant_score": 55.0,
+      "avg_quant_score": 59.0,
       "top_tickers": [
+        {
+          "ticker": "MCDOWELL-N.NS",
+          "score": 75,
+          "regime": "STABLE_ACCUMULATION",
+          "wyckoff_phase": "PHASE_B (Consolidation Zone)",
+          "delivery_15d": 59.1,
+          "is_breakout": false,
+          "volume_ratio": 0.71,
+          "supertrend_flipped": false,
+          "supertrend_direction": null
+        },
         {
           "ticker": "TI.NS",
           "score": 75,
@@ -533,9 +544,9 @@
           "supertrend_direction": null
         }
       ],
-      "score_change": 0.0,
-      "reversal_pct_change": 0.0,
-      "trend": "FLAT"
+      "score_change": 7.8,
+      "reversal_pct_change": -5.0,
+      "trend": "UP"
     },
     {
       "sector": "Railway_Infra",

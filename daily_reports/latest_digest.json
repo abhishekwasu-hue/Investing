@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-10-07T17:44:06.566245",
-  "generated_date": "2026-10-07",
+  "generated_at": "2026-10-08T17:48:37.907539",
+  "generated_date": "2026-10-08",
   "ai_commentary": "⚠️ ANTHROPIC_API_KEY सेट नाही — AI समालोचन तयार करता आलं नाही (फक्त खालचा quant डेटा उपलब्ध).",
   "sectors": [
     {
@@ -214,7 +214,7 @@
       "reversal_pct": 27.3,
       "good_regime_pct": 100.0,
       "breakout_pct": 0.0,
-      "avg_quant_score": 73.6,
+      "avg_quant_score": 72.3,
       "top_tickers": [
         {
           "ticker": "KOTAKBANK.NS",
@@ -224,17 +224,6 @@
           "delivery_15d": 66.0,
           "is_breakout": false,
           "volume_ratio": 0.97,
-          "supertrend_flipped": false,
-          "supertrend_direction": null
-        },
-        {
-          "ticker": "INDUSINDBK.NS",
-          "score": 90,
-          "regime": "HEALTHY_PRICE_CORRECTION",
-          "wyckoff_phase": "PHASE_C (Spring Accumulation Breakout) 🚀",
-          "delivery_15d": 65.1,
-          "is_breakout": false,
-          "volume_ratio": 0.96,
           "supertrend_flipped": false,
           "supertrend_direction": null
         },
@@ -270,9 +259,20 @@
           "volume_ratio": 0.46,
           "supertrend_flipped": false,
           "supertrend_direction": null
+        },
+        {
+          "ticker": "INDUSINDBK.NS",
+          "score": 75,
+          "regime": "HEALTHY_PRICE_CORRECTION",
+          "wyckoff_phase": "PHASE_C (Spring Accumulation Breakout) 🚀",
+          "delivery_15d": 65.1,
+          "is_breakout": false,
+          "volume_ratio": 0.96,
+          "supertrend_flipped": false,
+          "supertrend_direction": null
         }
       ],
-      "score_change": 0.0,
+      "score_change": -1.3,
       "reversal_pct_change": 0.0,
       "trend": "FLAT"
     },

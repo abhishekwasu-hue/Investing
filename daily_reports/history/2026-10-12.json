@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-09-09T15:05:02.240917",
-  "generated_date": "2026-09-09",
+  "generated_at": "2026-10-12T20:14:37.877169",
+  "generated_date": "2026-10-12",
   "ai_commentary": "⚠️ ANTHROPIC_API_KEY सेट नाही — AI समालोचन तयार करता आलं नाही (फक्त खालचा quant डेटा उपलब्ध).",
   "sectors": [
     {
@@ -10,7 +10,7 @@
       "reversal_pct": 100.0,
       "good_regime_pct": 100.0,
       "breakout_pct": 0.0,
-      "avg_quant_score": 68.1,
+      "avg_quant_score": 70.0,
       "top_tickers": [
         {
           "ticker": "TCS.NS",
@@ -46,6 +46,17 @@
           "supertrend_direction": null
         },
         {
+          "ticker": "PERSISTENT.NS",
+          "score": 75,
+          "regime": "STABLE_ACCUMULATION",
+          "wyckoff_phase": "PHASE_C (Spring Accumulation Breakout) 🚀",
+          "delivery_15d": 54.0,
+          "is_breakout": false,
+          "volume_ratio": 1.16,
+          "supertrend_flipped": false,
+          "supertrend_direction": null
+        },
+        {
           "ticker": "KPITTECH.NS",
           "score": 65,
           "regime": "STABLE_ACCUMULATION",
@@ -53,17 +64,6 @@
           "delivery_15d": 60.8,
           "is_breakout": false,
           "volume_ratio": 0.25,
-          "supertrend_flipped": false,
-          "supertrend_direction": null
-        },
-        {
-          "ticker": "INFY.NS",
-          "score": 60,
-          "regime": "STABLE_ACCUMULATION",
-          "wyckoff_phase": "PHASE_C (Spring Accumulation Breakout) 🚀",
-          "delivery_15d": 63.7,
-          "is_breakout": false,
-          "volume_ratio": 0.64,
           "supertrend_flipped": false,
           "supertrend_direction": null
         }

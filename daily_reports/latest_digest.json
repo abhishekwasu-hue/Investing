@@ -1,16 +1,16 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-10-22T15:50:43.393130",
-  "generated_date": "2026-10-22",
+  "generated_at": "2026-10-23T15:41:31.299320",
+  "generated_date": "2026-10-23",
   "ai_commentary": "⚠️ ANTHROPIC_API_KEY सेट नाही — AI समालोचन तयार करता आलं नाही (फक्त खालचा quant डेटा उपलब्ध).",
   "sectors": [
     {
       "sector": "IT_Giants",
-      "total_tickers_scanned": 8,
-      "reversal_pct": 100.0,
+      "total_tickers_scanned": 9,
+      "reversal_pct": 88.9,
       "good_regime_pct": 100.0,
       "breakout_pct": 0.0,
-      "avg_quant_score": 70.0,
+      "avg_quant_score": 67.8,
       "top_tickers": [
         {
           "ticker": "TCS.NS",
@@ -68,9 +68,9 @@
           "supertrend_direction": null
         }
       ],
-      "score_change": 1.1,
-      "reversal_pct_change": 11.1,
-      "trend": "FLAT"
+      "score_change": -2.2,
+      "reversal_pct_change": -11.1,
+      "trend": "DOWN"
     },
     {
       "sector": "Defense_Sector",
@@ -142,8 +142,8 @@
     },
     {
       "sector": "Automobile_EV",
-      "total_tickers_scanned": 9,
-      "reversal_pct": 33.3,
+      "total_tickers_scanned": 10,
+      "reversal_pct": 30.0,
       "good_regime_pct": 100.0,
       "breakout_pct": 0.0,
       "avg_quant_score": 75.0,
@@ -171,6 +171,17 @@
           "supertrend_direction": null
         },
         {
+          "ticker": "TATAMOTORS.NS",
+          "score": 75,
+          "regime": "STABLE_ACCUMULATION",
+          "wyckoff_phase": "PHASE_B (Consolidation Zone)",
+          "delivery_15d": 47.4,
+          "is_breakout": false,
+          "volume_ratio": 1.38,
+          "supertrend_flipped": false,
+          "supertrend_direction": null
+        },
+        {
           "ticker": "BAJAJ-AUTO.NS",
           "score": 75,
           "regime": "STABLE_ACCUMULATION",
@@ -191,21 +202,10 @@
           "volume_ratio": 0.59,
           "supertrend_flipped": false,
           "supertrend_direction": null
-        },
-        {
-          "ticker": "HEROMOTOCO.NS",
-          "score": 75,
-          "regime": "STABLE_ACCUMULATION",
-          "wyckoff_phase": "PHASE_B (Consolidation Zone)",
-          "delivery_15d": 60.3,
-          "is_breakout": false,
-          "volume_ratio": 0.56,
-          "supertrend_flipped": false,
-          "supertrend_direction": null
         }
       ],
-      "score_change": 1.0,
-      "reversal_pct_change": 3.3,
+      "score_change": 0.0,
+      "reversal_pct_change": -3.3,
       "trend": "FLAT"
     },
     {
@@ -414,11 +414,11 @@
     },
     {
       "sector": "Green_Energy_Power",
-      "total_tickers_scanned": 9,
-      "reversal_pct": 55.6,
-      "good_regime_pct": 55.6,
+      "total_tickers_scanned": 10,
+      "reversal_pct": 50.0,
+      "good_regime_pct": 60.0,
       "breakout_pct": 0.0,
-      "avg_quant_score": 50.0,
+      "avg_quant_score": 52.5,
       "top_tickers": [
         {
           "ticker": "TATAPOWER.NS",
@@ -443,6 +443,17 @@
           "supertrend_direction": null
         },
         {
+          "ticker": "ADANITRANS.NS",
+          "score": 75,
+          "regime": "STABLE_ACCUMULATION",
+          "wyckoff_phase": "PHASE_B (Consolidation Zone)",
+          "delivery_15d": 43.1,
+          "is_breakout": false,
+          "volume_ratio": 1.4,
+          "supertrend_flipped": false,
+          "supertrend_direction": null
+        },
+        {
           "ticker": "NHPC.NS",
           "score": 75,
           "regime": "STABLE_ACCUMULATION",
@@ -463,31 +474,31 @@
           "volume_ratio": 0.67,
           "supertrend_flipped": false,
           "supertrend_direction": null
-        },
-        {
-          "ticker": "JSWENERGY.NS",
-          "score": 50,
-          "regime": "STABLE_ACCUMULATION",
-          "wyckoff_phase": "PHASE_B (Consolidation Zone)",
-          "delivery_15d": 61.6,
-          "is_breakout": false,
-          "volume_ratio": 0.72,
-          "supertrend_flipped": false,
-          "supertrend_direction": null
         }
       ],
-      "score_change": -1.5,
-      "reversal_pct_change": 5.6,
-      "trend": "FLAT"
+      "score_change": 2.5,
+      "reversal_pct_change": -5.6,
+      "trend": "UP"
     },
     {
       "sector": "Alcoholic_Beverages",
-      "total_tickers_scanned": 4,
-      "reversal_pct": 25.0,
-      "good_regime_pct": 75.0,
+      "total_tickers_scanned": 5,
+      "reversal_pct": 20.0,
+      "good_regime_pct": 80.0,
       "breakout_pct": 0.0,
-      "avg_quant_score": 55.0,
+      "avg_quant_score": 59.0,
       "top_tickers": [
+        {
+          "ticker": "MCDOWELL-N.NS",
+          "score": 75,
+          "regime": "STABLE_ACCUMULATION",
+          "wyckoff_phase": "PHASE_B (Consolidation Zone)",
+          "delivery_15d": 60.0,
+          "is_breakout": false,
+          "volume_ratio": 1.2,
+          "supertrend_flipped": false,
+          "supertrend_direction": null
+        },
         {
           "ticker": "TI.NS",
           "score": 75,
@@ -533,9 +544,9 @@
           "supertrend_direction": null
         }
       ],
-      "score_change": -4.0,
-      "reversal_pct_change": 5.0,
-      "trend": "DOWN"
+      "score_change": 4.0,
+      "reversal_pct_change": -5.0,
+      "trend": "UP"
     },
     {
       "sector": "Railway_Infra",
